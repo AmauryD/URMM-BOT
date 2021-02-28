@@ -39,7 +39,7 @@ export class CommandHandler {
   }
 
   async handleCommand(message: Message) {
-    const parsed = parse(message, BotConfig.config.commandPrefix, {
+    const parsed = parse(message, "$", {
       allowSpaceBeforeCommand: true,
     });
     if (!parsed.success) return;

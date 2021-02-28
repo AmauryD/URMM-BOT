@@ -10,8 +10,8 @@ async function init() {
   const botUser = client.user!;
 
   await botUser.setActivity("Mange des spaghettis");
-  if (botUser.username !== config.botUsername) {
-    await botUser.setUsername(config.botUsername);
+  if (botUser.username !== "URMM-BOT") {
+    await botUser.setUsername("URMM-BOT");
   }
   await botUser.setStatus("dnd");
 
@@ -19,7 +19,7 @@ async function init() {
   await commandHandler.init();
 
   const listenChannel = (await client.channels.fetch(
-    BotConfig.getKey("commandChannel")
+    BotConfig.getKey("publishChannel")
   )) as TextChannel;
 
   client.on("message", (message) => {
@@ -28,11 +28,18 @@ async function init() {
     }
   });
 
-  // await listenChannel.send(
-  //   `Bonjour ! Je suis en ligne !\nN'hésitez pas à m'appeler si vous avez besoin de ${BotConfig.getKey(
-  //     "commandPrefix"
-  //   )}help`
-  // );
+  client.on("guildCreate", async (guild) => {
+    if (
+      !guild.channels.cache.find(
+        (c) => c.name === "urmm-bot" && c.type === "text"
+      )
+    ) {
+      const channel = await guild.channels.create("urmm-bot", { type: "text" });
+      channel.send(
+        "Bonjour ! Ce channel contiendra les différentes annonces pour les thèmes de la semaine ! :D"
+      );
+    }
+  });
 
   console.log("I'm ready to go");
 }

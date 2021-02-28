@@ -2,13 +2,7 @@ import dotenv from "dotenv";
 
 export interface BotConfigObject {
   token: string;
-  reunionTime: [number, number, number];
-  reunionTagRolesIds: string[];
-  reunionTagChannelId: string;
-  botUsername: string;
-  commandPrefix: string;
-  commandChannel: string;
-  statesChannel: string;
+  publishChannel: string;
 }
 
 export class BotConfig {
@@ -34,15 +28,7 @@ export class BotConfig {
     }
 
     config.token = parsed!.TOKEN;
-    config.reunionTime = parsed!.REUNION_TIME.split(",").map((el) =>
-      parseInt(el)
-    ) as [number, number, number];
-    config.reunionTagRolesIds = parsed!.REUNION_TAGS.split(",");
-    config.reunionTagChannelId = parsed!.REUNION_CHANNEL_ID;
-    config.botUsername = parsed!.USERNAME;
-    config.commandPrefix = parsed!.COMMAND_PREFIX;
-    config.commandChannel = parsed!.COMMAND_CHANNEL;
-    config.statesChannel = parsed!.STATES_CHANNEL;
+    config.publishChannel = parsed!.PUBLISH_CHANNEL_ID;
 
     return (BotConfig._config = config);
   }
