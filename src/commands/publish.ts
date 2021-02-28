@@ -23,6 +23,8 @@ export const action: CommandAction = async function (
         await channel.send(messageContent);
       }
     }
+
+    await originalMessage.channel.send(messageContent);
   }
   await originalMessage.delete();
 };
