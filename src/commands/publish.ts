@@ -12,7 +12,11 @@ export const action: CommandAction = async function (
   args,
   originalMessage
 ) {
-  if (originalMessage.client.user?.id === "813478558307057734") {
+  const role = originalMessage.guild!.roles.cache.find(
+    (r) => r.id === "765178654236868648" || r.id === "765178419368689685"
+  );
+
+  if (role && originalMessage.member?.roles.cache.has(role.id)) {
     const messageContent = args.body;
 
     for (const g of DiscordClient.instance.guilds.cache.values()) {
