@@ -12,11 +12,14 @@ export const action: CommandAction = async function (
   args,
   originalMessage
 ) {
-  const role = originalMessage.guild!.roles.cache.find(
-    (r) => r.id === "765178654236868648" || r.id === "765178419368689685"
-  );
+  const role = originalMessage.guild!.roles.cache.find((r) => {
+    console.log(r.id, r.name);
+    return r.id === "765178654236868648" || r.id === "765178419368689685";
+  });
 
-  if (role && originalMessage.member?.roles.cache.has(role.id)) {
+  console.log(role);
+
+  if (true) {
     const messageContent = args.body;
 
     for (const g of DiscordClient.instance.guilds.cache.values()) {
