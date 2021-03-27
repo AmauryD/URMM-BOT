@@ -4,7 +4,7 @@ import { Poll } from "../models/poll";
 import { Proposition } from "../models/proposition";
 import { Vote } from "../models/vote";
 import { VoteProposition } from "../models/vote-proposition";
-import { TourRepository } from "../repositories.ts/tour.repository";
+import { TourRepository } from "../repositories/tour.repository";
 import { askQuestion } from "../utils/ask-question";
 import getCurrentPoll from "../utils/get-current-poll";
 

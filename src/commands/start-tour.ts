@@ -3,7 +3,7 @@ import { CommandAction, CommandHandler } from "../commandHandler";
 import { Poll } from "../models/poll";
 import { Proposition } from "../models/proposition";
 import { VoteProposition } from "../models/vote-proposition";
-import { TourRepository } from "../repositories.ts/tour.repository";
+import { TourRepository } from "../repositories/tour.repository";
 import { askQuestion } from "../utils/ask-question";
 import getCurrentPoll from "../utils/get-current-poll";
 

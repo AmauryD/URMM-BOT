@@ -1,7 +1,7 @@
 import { getCustomRepository, getRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../commandHandler";
 import { Vote } from "../models/vote";
-import { TourRepository } from "../repositories.ts/tour.repository";
+import { TourRepository } from "../repositories/tour.repository";
 import { askQuestion } from "../utils/ask-question";
 import getCurrentPoll from "../utils/get-current-poll";
 
