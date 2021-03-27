@@ -3,6 +3,7 @@ import { BotConfig } from "./bot-config";
 import { CommandHandler } from "./commandHandler";
 import { DiscordClient } from "./discordclient";
 import "reflect-metadata";
+import { DatabaseConnection } from "./db-connection";
 
 async function init() {
   const config = await BotConfig.init();
@@ -15,6 +16,8 @@ async function init() {
   }
   await botUser.setStatus("dnd");
 
+  await DatabaseConnection.connect();
+
   const commandHandler = new CommandHandler(client);
   await commandHandler.init();
 
@@ -23,7 +26,7 @@ async function init() {
   )) as TextChannel;
 
   client.on("message", (message) => {
-    if (message.channel.id === listenChannel.id) {
+    if (message.channel.type === "dm") {
       commandHandler.handleCommand.bind(commandHandler)(message);
     }
   });

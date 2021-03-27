@@ -1,9 +1,9 @@
-import { Client, GuildMember } from "discord.js";
+import { Client, GuildMember, User } from "discord.js";
 import { waitMessage } from "./wait-message";
 
 export async function askQuestion(
   msg: string,
-  member: GuildMember,
+  member: GuildMember | User,
   timeout: number = 60000
 ) {
   await member.send(msg);

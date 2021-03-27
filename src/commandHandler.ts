@@ -51,8 +51,7 @@ export class CommandHandler {
           message
         );
       } catch (e) {
-        console.log(e);
-        const msg = e ? e : "Error";
+        const msg = e ? e.message : "Error";
         await message.channel.send(msg);
       }
     }
