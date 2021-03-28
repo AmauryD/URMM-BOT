@@ -4,6 +4,8 @@ import { CommandHandler } from "./commandHandler";
 import { DiscordClient } from "./discordclient";
 import "reflect-metadata";
 import { DatabaseConnection } from "./db-connection";
+import { getRepository } from "typeorm";
+import { GuildMember } from "./models/server";
 
 async function init() {
   const config = await BotConfig.init();
@@ -21,27 +23,41 @@ async function init() {
   const commandHandler = new CommandHandler(client);
   await commandHandler.init();
 
-  const listenChannel = (await client.channels.fetch(
-    BotConfig.getKey("publishChannel")
-  )) as TextChannel;
+
 
   client.on("message", (message) => {
-    if (message.channel.type === "dm") {
-      commandHandler.handleCommand.bind(commandHandler)(message);
-    }
+    commandHandler.handleCommand(message);
+  })
+
+  client.on("guildDelete", async (guild) => {
+    const serverRepo = getRepository(GuildMember);
+    await serverRepo.update(guild.id,{
+      isActive: false
+    });
   });
 
   client.on("guildCreate", async (guild) => {
-    if (
-      !guild.channels.cache.find(
-        (c) => c.name === "urmm-bot" && c.type === "text"
-      )
-    ) {
+    const serverRepo = getRepository(GuildMember);
+
+    let server = await serverRepo.findOne(guild.id);
+
+    if (server) {
+      server.isActive = true;
+    }else{
       const channel = await guild.channels.create("urmm-bot", { type: "text" });
-      channel.send(
+
+      server = serverRepo.create({
+        guildId: guild.id,
+        broadcastChannelId : channel.id
+      });
+
+      await channel.send(
         "Bonjour ! Ce channel contiendra les différentes annonces pour les thèmes de la semaine ! :D"
       );
     }
+
+    await serverRepo.save(server);
+
   });
 
   console.log("I'm ready to go");

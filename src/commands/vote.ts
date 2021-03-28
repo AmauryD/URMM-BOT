@@ -24,37 +24,46 @@ export const action: CommandAction = async function (
 
   const lastTour = await repo
     .createQueryBuilder("tour")
-    .leftJoinAndSelect("tour.poll", "poll")
+    .innerJoinAndSelect("tour.poll", "poll")
     .leftJoinAndSelect("tour.votePropositions", "votePropositions")
-    .leftJoinAndSelect("votePropositions.proposition", "proposition")
+    .innerJoinAndSelect("votePropositions.proposition", "proposition")
     .where("tour.pollId = :pollId", { pollId: currentPoll.id })
     .orderBy("tour.number", "DESC")
-    .getSql();
+    .getOne();
 
-  console.log(lastTour);
+  if (!lastTour) {
+    throw new Error("Aucun tour n'a encore été posté :(");
+  }
 
-  // if (!lastTour) {
-  //   throw new Error("Aucun tour n'a encore été posté :(");
-  // }
 
-  // console.log(lastTour);
+  const hasVoted = await repo
+    .createQueryBuilder("tour")
+    .leftJoinAndSelect("tour.votePropositions", "votePropositions")
+    .innerJoinAndSelect("votePropositions.votes", "votes")
+    .where("tour.id = :tourId", {tourId: lastTour.id})
+    .andWhere("votes.clientId = :client",{client: originalMessage.author!.id})
+    .getOne();
 
-  // const response = await askQuestion(
-  //   `Voici les différentes propositions de la semaine :\n${lastTour.votePropositions.map(
-  //     (e, i) => `-${i} : ${e.proposition.name}`
-  //   )}\nVeuillez faire votre choix (ex : 1) !\nSi plusieurs choix séparer par une virgule comme ceci : (ex : 1,2,3,4)`,
-  //   originalMessage.author!,
-  //   30000
-  // );
+  if (hasVoted) {
+    throw new Error("Vous avez déjà voté :(");
+  }
 
-  // for (const code of response.split(",")) {
-  //   const voteProposition = lastTour.votePropositions[parseInt(code, 10)];
-  //   const vote = voteRepo.create({
-  //     voteProposition,
-  //     clientId: originalMessage.member!.id,
-  //   });
-  //   await voteRepo.save(vote);
-  // }
+  const response = await askQuestion(
+    `⬇ Voici les différentes propositions de la semaine :\n${lastTour.votePropositions.map(
+      (e, i) => `🔹 ${i} : ${e.proposition.name}`
+    ).join("\n")}\nVeuillez faire votre choix (ex : 1) !\nSi plusieurs choix séparer par une virgule comme ceci : (ex : 1,2,3,4)`,
+    originalMessage.author!,
+    30000
+  );
 
-  // await originalMessage.reply("Votre vote a été comptabilisé !");
+  for (const code of response.split(",").map(r => r.trim())) {
+    const voteProposition = lastTour.votePropositions[parseInt(code, 10)];
+    const vote = voteRepo.create({
+      voteProposition,
+      clientId: originalMessage.author!.id,
+    });
+    await voteRepo.save(vote);
+  }
+
+  await originalMessage.reply("✅ Votre vote a été comptabilisé !");
 };

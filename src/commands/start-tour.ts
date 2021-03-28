@@ -101,5 +101,5 @@ export const action: CommandAction = async function (
     });
   }
 
-  await originalMessage.reply("Tour publié !");
+  await originalMessage.reply("📝 Tour publié !");
 };

@@ -31,7 +31,7 @@ export class Tour {
   })
   public poll!: Poll;
 
-  @OneToMany(() => VoteProposition, (vote) => vote.proposition)
+  @OneToMany(() => VoteProposition, (vote) => vote.tour)
   public votePropositions!: VoteProposition[];
 
   @Column("enum", {

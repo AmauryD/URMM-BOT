@@ -25,5 +25,5 @@ export const action: CommandAction = async function (
     .where("pollWinner.winnerId IS NULL")
     .getMany();
 
-  await originalMessage.reply(propositions.map((p) => `- ${p.name}\n`));
+  await originalMessage.reply(propositions.map((p) => `🔹 ${p.name}`).join("\n"));
 };

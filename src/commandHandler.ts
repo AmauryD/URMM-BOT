@@ -13,10 +13,15 @@ export interface CommandsObject {
   [key: string]: CommandModule;
 }
 
+type CommandListenFunction = () => `${number}`;
+
+export type CommandListen = "@guilds" | `${number}` | "@dm" | CommandListenFunction;
+
 export interface CommandModule {
   commandName: string;
   action: CommandAction;
   description: string;
+  listen: CommandListen;
 }
 
 export class CommandHandler {
@@ -35,6 +40,7 @@ export class CommandHandler {
         `${__dirname}/commands/${commandFile}`
       );
       this._commands[commandModule.commandName.split(" ")[0]] = commandModule;
+      commandModule.listen ??= "@dm";
     }
   }
 
@@ -45,14 +51,32 @@ export class CommandHandler {
     if (!parsed.success) return;
     if (this._commands[parsed.command] !== undefined) {
       try {
-        await this._commands[parsed.command].action.call(
-          this,
-          parsed.reader,
-          message
-        );
+        const listen = typeof this._commands[parsed.command].listen === "function" ? ((this._commands[parsed.command]).listen as CommandListenFunction)() : this._commands[parsed.command].listen;
+
+        console.log(listen, message.channel.type);
+
+        if (listen === "@dm" && message.channel.type === "dm") {
+          await this._commands[parsed.command].action.call(
+            this,
+            parsed.reader,
+            message
+          );
+        }else if (listen === "@guilds" && message.channel.type === "text") {
+          await this._commands[parsed.command].action.call(
+            this,
+            parsed.reader,
+            message
+          );
+        }else if (listen === message.channel.id) {
+          await this._commands[parsed.command].action.call(
+            this,
+            parsed.reader,
+            message
+          );
+        }
       } catch (e) {
         const msg = e ? e.message : "Error";
-        await message.channel.send(msg);
+        await message.channel.send(`❌ ${msg}`);
       }
     }
   }
