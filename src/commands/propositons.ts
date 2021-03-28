@@ -25,5 +25,5 @@ export const action: CommandAction = async function (
     .where("pollWinner.winnerId IS NULL")
     .getMany();
 
-  await originalMessage.reply(propositions.map((p) => `🔹 ${p.name}`).join("\n"));
+  await originalMessage.reply("📋 Voici la liste des différents sujets déjà proposés : \n" + propositions.map((p) => `🔹 ${p.name}`).join("\n"));
 };

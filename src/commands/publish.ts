@@ -1,5 +1,6 @@
 import { Guild, TextChannel } from "discord.js";
 import { getRepository } from "typeorm";
+import { publishMessageOnEveryServers } from "../utils/publish";
 import { BotConfig } from "../bot-config";
 import { CommandAction, CommandHandler } from "../commandHandler";
 import { DiscordClient } from "../discordclient";
@@ -23,15 +24,7 @@ export const action: CommandAction = async function (
   })) {
     const messageContent = args.body;
 
-    for (const g of DiscordClient.instance.guilds.cache.values()) {
-      const repository = getRepository(GuildMember);
-
-      const server = await repository.findOne(g.id);
-
-      if (server) {
-        ((await DiscordClient.instance.channels.fetch(server.broadcastChannelId)) as TextChannel).send(messageContent);
-      }
-    }
+    await publishMessageOnEveryServers(messageContent);
   }else{
     await originalMessage.reply("Vous n'avez pas des droits administrateur :(");
   }

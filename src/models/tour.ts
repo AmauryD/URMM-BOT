@@ -39,4 +39,10 @@ export class Tour {
     default: TourType.Multiple,
   })
   public type!: TourType;
+
+  @Column("bool", {
+    default: false,
+    nullable: false
+  })
+  public isFinal!: boolean;
 }

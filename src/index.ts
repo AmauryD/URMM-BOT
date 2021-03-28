@@ -1,4 +1,3 @@
-import { TextChannel } from "discord.js";
 import { BotConfig } from "./bot-config";
 import { CommandHandler } from "./commandHandler";
 import { DiscordClient } from "./discordclient";
@@ -10,22 +9,21 @@ import { ChartService } from "./utils/chart-service";
 
 async function init() {
   const config = await BotConfig.init();
-  const client = await DiscordClient.init(config.token);
-  await ChartService.init();
+  const [client,,] = await Promise.all([
+    DiscordClient.init(config.token),
+    ChartService.init(),
+    DatabaseConnection.connect()
+  ]);
   const botUser = client.user!;
 
-  await botUser.setActivity("Mange des spaghettis");
+  botUser.setActivity("Mange des spaghettis");
   if (botUser.username !== "URMM-BOT") {
-    await botUser.setUsername("URMM-BOT");
+    botUser.setUsername("URMM-BOT");
   }
-  await botUser.setStatus("dnd");
-
-  await DatabaseConnection.connect();
+  botUser.setStatus("dnd");
 
   const commandHandler = new CommandHandler(client);
   await commandHandler.init();
-
-
 
   client.on("message", (message) => {
     commandHandler.handleCommand(message);

@@ -26,7 +26,7 @@ export const action: CommandAction = async function (
     .innerJoinAndSelect("tour.poll", "poll")
     .leftJoinAndSelect("tour.votePropositions", "votePropositions")
     .leftJoinAndSelect("votePropositions.votes", "votes")
-    .innerJoinAndSelect("votePropositions.proposition", "proposition")
+    .leftJoinAndSelect("votePropositions.proposition", "proposition")
     .where("tour.pollId = :pollId", { pollId: currentPoll.id })
     .orderBy("tour.number", "DESC")
     .getOne();

@@ -1,5 +1,6 @@
 import { getCustomRepository, getRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../commandHandler";
+import { TourType } from "../models/tour";
 import { Vote } from "../models/vote";
 import { TourRepository } from "../repositories/tour.repository";
 import { askQuestion } from "../utils/ask-question";
@@ -48,7 +49,23 @@ export const action: CommandAction = async function (
     throw new Error("Vous avez déjà voté :(");
   }
 
-  const response = await askQuestion(
+  if (lastTour.type === TourType.Single) {
+    const response = await askQuestion(
+      `⬇ Voici les différentes propositions de la semaine :\n${lastTour.votePropositions.map(
+        (e, i) => `🔹 ${i} : ${e.proposition.name}`
+      ).join("\n")}\nVeuillez faire votre choix (ex : 1) !\nCeci est à choix unique !`,
+      originalMessage.author!,
+      30000
+    );
+
+    const voteProposition = lastTour.votePropositions[parseInt(response, 10)];
+    const vote = voteRepo.create({
+      voteProposition,
+      clientId: originalMessage.author!.id,
+    });
+    await voteRepo.save(vote);
+  }else{
+    const response = await askQuestion(
     `⬇ Voici les différentes propositions de la semaine :\n${lastTour.votePropositions.map(
       (e, i) => `🔹 ${i} : ${e.proposition.name}`
     ).join("\n")}\nVeuillez faire votre choix (ex : 1) !\nSi plusieurs choix séparer par une virgule comme ceci : (ex : 1,2,3,4)`,
@@ -63,6 +80,7 @@ export const action: CommandAction = async function (
       clientId: originalMessage.author!.id,
     });
     await voteRepo.save(vote);
+  }
   }
 
   await originalMessage.reply("✅ Votre vote a été comptabilisé !");

@@ -3,11 +3,15 @@ import { Tour } from "../models/tour";
 
 @EntityRepository(Tour)
 export class TourRepository extends Repository<Tour> {
-  getLastTourBuilder(pollId: string) {
-    console.log(pollId);
-    return this.createQueryBuilder("tour")
+  getLastTour(pollId: string) {
+    return this
+      .createQueryBuilder("tour")
       .innerJoinAndSelect("tour.poll", "poll")
-      .select("MAX(tour.number)")
-      .where(`poll.id = '${pollId}'`);
+      .leftJoinAndSelect("tour.votePropositions", "votePropositions")
+      .leftJoinAndSelect("votePropositions.votes", "votes")
+      .leftJoinAndSelect("votePropositions.proposition", "proposition")
+      .where("tour.pollId = :pollId", { pollId })
+      .orderBy("tour.number", "DESC")
+      .getOne();
   }
 }
