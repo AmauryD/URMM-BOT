@@ -6,10 +6,12 @@ import "reflect-metadata";
 import { DatabaseConnection } from "./db-connection";
 import { getRepository } from "typeorm";
 import { GuildMember } from "./models/server";
+import { ChartService } from "./utils/chart-service";
 
 async function init() {
   const config = await BotConfig.init();
   const client = await DiscordClient.init(config.token);
+  await ChartService.init();
   const botUser = client.user!;
 
   await botUser.setActivity("Mange des spaghettis");
