@@ -1,6 +1,7 @@
 import { readFile } from "fs/promises";
 import { Tour } from "../models/tour";
 import puppeteer, { Browser } from "puppeteer";
+import stc from "string-to-color";
 
 export class ChartService {
     private static _browser : Browser | null = null;
@@ -19,21 +20,19 @@ export class ChartService {
 
     static async generateChart(results : Tour) {
         let totalVotes = results.votePropositions.reduce((p,c) => p + c.votes.length,0);
-        if (totalVotes === 0) {
-            totalVotes = 1;
-        }
+        const adjustedVotes = totalVotes === 0 ? 1 : totalVotes;
         const votes: string[] = [];
         const backgroundcolors : string[] = [];
 
         const labels = results.votePropositions
         .sort((a,b) => {
-            const apercentage = 100 * (a.votes.length/ totalVotes);
-            const bpercentage = 100 * (b.votes.length/ totalVotes);
+            const apercentage = 100 * (a.votes.length/ adjustedVotes);
+            const bpercentage = 100 * (b.votes.length/ adjustedVotes);
             return bpercentage - apercentage;
         }).map((vprop) => {
-            const percentage = 100 * (vprop.votes.length/ totalVotes);
+            const percentage = 100 * (vprop.votes.length/ adjustedVotes);
             votes.push(vprop.votes.length.toString());
-            backgroundcolors.push(`#${Math.floor(Math.random()*16777215).toString(16)}`);
+            backgroundcolors.push(`#${stc(vprop.proposition.name)}`);
             return `${vprop.proposition.name}\n ${percentage.toFixed(2)}%`;
         });
 
@@ -46,7 +45,7 @@ export class ChartService {
             data: {
                 labels: labels,
                 datasets: [{
-                    label: '# of Votes',
+                    label: `# de votes (${totalVotes} votants)`,
                     data: votes,
                     backgroundColor: backgroundcolors
                 }]

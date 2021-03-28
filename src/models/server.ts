@@ -3,6 +3,7 @@ import {
   PrimaryColumn,
   Column,
   Index,
+  CreateDateColumn,
 } from "typeorm";
 
 @Entity()
@@ -21,4 +22,7 @@ export class GuildMember {
     default: true
   })
   public isActive!: boolean;
+
+  @CreateDateColumn()
+  public createdAt!: any;
 }

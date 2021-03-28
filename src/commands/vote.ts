@@ -65,6 +65,7 @@ export const action: CommandAction = async function (
     });
     await voteRepo.save(vote);
   }else{
+    const indexes = lastTour.votePropositions.map((e,i) => i);
     const response = await askQuestion(
     `⬇ Voici les différentes propositions de la semaine :\n${lastTour.votePropositions.map(
       (e, i) => `🔹 ${i} : ${e.proposition.name}`
@@ -73,7 +74,17 @@ export const action: CommandAction = async function (
     30000
   );
 
-  for (const code of response.split(",").map(r => r.trim())) {
+  const chosen = response.split(",").map(r => r.trim()).filter((e) => e !== "");
+
+  if (chosen.length === 0) {
+    throw new Error("Vous devez proposer quelque chose !");
+  }
+
+  if (chosen.some((e) => !indexes.includes(parseInt(e,10)))) {
+    throw new Error("Vous devez choisir une proposition valide !");
+  }
+
+  for (const code of chosen) {
     const voteProposition = lastTour.votePropositions[parseInt(code, 10)];
     const vote = voteRepo.create({
       voteProposition,

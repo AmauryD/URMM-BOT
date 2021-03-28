@@ -1,4 +1,4 @@
-import { TextChannel } from "discord.js";
+import { DMChannel, MessageAttachment, MessageEmbed, TextChannel } from "discord.js";
 import { getCustomRepository, getRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../commandHandler";
 import { Poll } from "../models/poll";
@@ -9,6 +9,7 @@ import { TourRepository } from "../repositories/tour.repository";
 import { askQuestion } from "../utils/ask-question";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
+import stc from "string-to-color";
 
 export const commandName = "start-tour";
 
@@ -84,9 +85,9 @@ export const action: CommandAction = async function (
     .where("pollWinner.winnerId IS NULL")
     .getMany();
     
-  const newTour = repo.create({
+  let newTour = repo.create({
     poll: currentPoll,
-    number: lastTour ? lastTour.number + 1 : 1,
+    number: lastTour ? lastTour.number + 1 : 1
   });
 
   const isFinalTour = await askQuestion(
@@ -105,28 +106,57 @@ export const action: CommandAction = async function (
   );
 
   if (isMulti === "y") {
-    await originalMessage.reply("☑ Enregistré comme tour à réponses uniques !");
+    await originalMessage.reply("✅ Enregistré comme tour à réponses uniques !");
     newTour.type = TourType.Single;
   }else{
-    await originalMessage.reply("☑ Enregistré comme tour à réponses multiples !");
+    await originalMessage.reply("✅ Enregistré comme tour à réponses multiples !");
     newTour.type = TourType.Multiple;
   }
 
-  await repo.save(newTour);
+  newTour = await repo.save(newTour);
+
+  const propositionsArray = lastTour?.votePropositions.map((e) => e.proposition) ?? propositions;
 
   const propositionString = await askQuestion(
-    `Quelles propositions doivent être dans ce tour ? (ex: 1,2,3)\n${(lastTour?.votePropositions.map((e) => e.proposition) ?? propositions).map(
+    `Quelles propositions doivent être dans ce tour ? (ex: 1,2,3)\n${propositionsArray.map(
       (e, i) => `🔹 ${i} : ${e.name}`
     ).join("\n")}`,
     originalMessage.author
   );
+    
+  const indexes = propositionsArray.map((e,i) => i);
+  const chosen = propositionString.split(",").map(e => e.trim()).filter((e) => e !== "");
 
-  for (const nbrString of propositionString.split(",").map(e => e.trim()).filter((e) => e !== "")) {
-    await votePropRepo.save({
+  if (chosen.length === 0) {
+    throw new Error("Vous devez proposer quelque chose !");
+  }
+
+  if (chosen.some((e) => !indexes.includes(parseInt(e,10)))) {
+    throw new Error("Vous devez choisir une proposition valide !");
+  }
+
+  const chosenArrayObject : VoteProposition[] = [];
+
+  for (const nbrString of chosen) {
+    chosenArrayObject.push(await votePropRepo.save({
       proposition: propositions[parseInt(nbrString, 10)],
       tour: newTour,
-    });
+      votes : []
+    }));
   }
+
+  newTour.votePropositions = chosenArrayObject;
+
+  const embed = new MessageEmbed()
+    .setColor(stc(currentPoll.name))
+    .setTitle(currentPoll.name)
+    .setDescription(`🥳 **Nouveau tour !** 🥳`)
+    .attachFiles([
+      new MessageAttachment(await ChartService.generateChart(newTour))
+    ])
+    .setTimestamp();
+
+  await (originalMessage.channel as DMChannel).send(embed);
 
   await originalMessage.reply("📝 Tour publié !");
 };

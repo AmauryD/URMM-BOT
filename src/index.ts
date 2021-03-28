@@ -6,6 +6,7 @@ import { DatabaseConnection } from "./db-connection";
 import { getRepository } from "typeorm";
 import { GuildMember } from "./models/server";
 import { ChartService } from "./utils/chart-service";
+import { MessageEmbed } from "discord.js";
 
 async function init() {
   const config = await BotConfig.init();
@@ -51,9 +52,14 @@ async function init() {
         broadcastChannelId : channel.id
       });
 
-      await channel.send(
-        "Bonjour ! Ce channel contiendra les différentes annonces pour les thèmes de la semaine ! :D"
-      );
+      const embed = new MessageEmbed()
+        .setColor("#0095cb")
+        .setTitle("👋 Bonjour 👋")
+        .setDescription(`Ce channel contiendra les différentes annonces pour les thèmes de la semaine ! 😊`)
+        .addField("🤖",`Pour inviter ce bot sur un Discord utilisez ce lien : https://discord.com/api/oauth2/authorize?client_id=813478558307057734&permissions=201469008&redirect_uri=https%3A%2F%2Fdiscord.com%2Fapi%2Foauth2%2Fauthorize&scope=bot`)
+        .addField("📝",`Faites \`$help\` pour voir les différentes commandes.\nSi vous voulez changer le channel d'annonces faites \`$channel\` dans le channel de votre choix.`);
+
+      await channel.send(embed);
     }
 
     await serverRepo.save(server);

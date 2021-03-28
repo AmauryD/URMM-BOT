@@ -1,5 +1,5 @@
 
-import { TextChannel } from "discord.js";
+import { MessageEmbed, TextChannel } from "discord.js";
 import { getRepository } from "typeorm";
 import { CommandAction, CommandHandler, CommandListen } from "../commandHandler";
 import { GuildMember } from "../models/server";
@@ -31,8 +31,13 @@ export const action: CommandAction = async function (
     // text channel, because @guilds
     guild.broadcastChannelId = (originalMessage.channel as TextChannel).id;
 
+    const embed = new MessageEmbed()
+      .setColor("#0095cb")
+      .setTitle("🥳 Changement de channel 🥳")
+      .setDescription(`Les annonces du 🤖 pour **${originalMessage.guild?.name}** seront maintenant dans ce channel !`);
+
     await repository.save(guild);
-    await originalMessage.channel.send(`🥳🥳🥳 Les annonces du BOT pour ${originalMessage.guild?.name} seront maintenant dans ce channel ! 🥳🥳🥳`);
+    await originalMessage.channel.send(embed);
     await originalMessage.delete();
   }else{
     await originalMessage.reply("Vous n'avez pas les droits suffisants");

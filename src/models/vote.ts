@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   PrimaryColumn,
@@ -20,4 +21,7 @@ export class Vote {
 
   @ManyToOne(() => VoteProposition, (voteProp) => voteProp.votes)
   public voteProposition!: VoteProposition;
+
+  @CreateDateColumn()
+  public createdAt!: any;
 }

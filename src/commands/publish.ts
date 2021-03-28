@@ -1,10 +1,7 @@
-import { Guild, TextChannel } from "discord.js";
-import { getRepository } from "typeorm";
 import { publishMessageOnEveryServers } from "../utils/publish";
 import { BotConfig } from "../bot-config";
 import { CommandAction, CommandHandler } from "../commandHandler";
-import { DiscordClient } from "../discordclient";
-import { GuildMember } from "../models/server";
+import { MessageEmbed } from "discord.js";
 
 export const commandName = "publish";
 
@@ -24,9 +21,14 @@ export const action: CommandAction = async function (
   })) {
     const messageContent = args.body;
 
-    await publishMessageOnEveryServers(messageContent);
+    const embed = new MessageEmbed()
+      .setColor("#0095cb")
+      .setTitle("📋 Annonce")
+      .setDescription(messageContent);
+
+    await publishMessageOnEveryServers(embed);
   }else{
-    await originalMessage.reply("Vous n'avez pas des droits administrateur :(");
+    await originalMessage.reply("Vous n'avez pas des droits administrateur ou le rôle BOT-MANAGER");
   }
   await originalMessage.delete();
 };

@@ -1,4 +1,4 @@
-import { TextChannel } from "discord.js";
+import { DMChannel, MessageAttachment, MessageEmbed, TextChannel } from "discord.js";
 import { getCustomRepository, getRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../commandHandler";
 import { DiscordClient } from "../discordclient";
@@ -10,6 +10,7 @@ import { TourRepository } from "../repositories/tour.repository";
 import { askQuestion } from "../utils/ask-question";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
+import stc from "string-to-color";
 
 export const commandName = "close-poll";
 
@@ -31,8 +32,8 @@ export const action: CommandAction = async function (
   }
 
   const customMessage = await askQuestion(
-    "Oyez oyez, veuillez indiquer votre message customisé d'amour qui apparaîtra avant mes résultats",
-    originalMessage.member!
+    "Oyez oyez, veuillez indiquer votre message customisé d'amour qui apparaîtra après mes résultats",
+    originalMessage.author!
   );
 
   const lastTour = await repo.getLastTour(currentPoll.id);
@@ -50,11 +51,16 @@ export const action: CommandAction = async function (
   currentPoll.status = PollStatus.Finished;
   await pollRepo.save(currentPoll);
 
-  const realWinnerClient = await DiscordClient.instance.users.fetch(winner.proposition.clientId);
+  const embed = new MessageEmbed()
+    .setColor(stc(winner.proposition.name))
+    .setTitle(currentPoll.name)
+    .setDescription(`🥳 **Le thème gagnant de la semaine est ${winner.proposition.name}** 🥳`)
+    .addField('Description', `Cette proposition a été proposée par ${winner.proposition.clientId ? `<@${winner.proposition.clientId}>` : "Un Inconnu"} !`)
+    .addField('Petit message', customMessage)
+    .attachFiles([
+      new MessageAttachment(await ChartService.generateChart(lastTour))
+    ])
+    .setTimestamp();
 
-  let message = `🥳 **Le thème gagnant de la semaine est ${winner.proposition.name}** 🥳\nCette proposition a été proposée par ${realWinnerClient?.username ?? "un Inconnu"} !\n${customMessage}`;
-  
-  await (originalMessage.channel as TextChannel).send(message,{
-    files : [await ChartService.generateChart(lastTour)]
-  });
+  await (originalMessage.channel as DMChannel).send(embed);
 };

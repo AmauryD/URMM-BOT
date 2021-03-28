@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   OneToMany,
@@ -41,4 +42,7 @@ export class Poll {
 
   @OneToMany(() => Tour, (tour) => tour.poll)
   public tours!: Tour[];
+
+  @CreateDateColumn()
+  public createdAt!: any;
 }
