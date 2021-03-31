@@ -1,7 +1,6 @@
 import { DMChannel, MessageAttachment, MessageEmbed, TextChannel } from "discord.js";
 import { getCustomRepository, getRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../commandHandler";
-import { DiscordClient } from "../discordclient";
 import { PollStatus } from "../models/poll";
 import { Proposition } from "../models/proposition";
 import { VoteProposition } from "../models/vote-proposition";

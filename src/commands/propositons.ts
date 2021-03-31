@@ -1,4 +1,4 @@
-import { Guild, TextChannel } from "discord.js";
+import { Guild, MessageEmbed, TextChannel } from "discord.js";
 import { BotConfig } from "../bot-config";
 import { CommandAction, CommandHandler } from "../commandHandler";
 import { DatabaseConnection } from "../db-connection";
@@ -25,5 +25,9 @@ export const action: CommandAction = async function (
     .where("pollWinner.winnerId IS NULL")
     .getMany();
 
-  await originalMessage.reply("📋 Voici la liste des différents sujets déjà proposés : \n" + propositions.map((p) => `🔹 ${p.name}`).join("\n"));
+    const embed = new MessageEmbed()
+      .setTitle("📋 Sujets proposés")
+      .setDescription(propositions.map((p) => `🔹 ${p.name}`).join("\n"));
+
+  await originalMessage.reply(embed);
 };

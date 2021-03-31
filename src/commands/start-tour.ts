@@ -72,11 +72,17 @@ export const action: CommandAction = async function (
       return;
     }
 
-    const chartt = await ChartService.generateChart(lastTour);
+    const embed = new MessageEmbed()
+      .setColor(stc(currentPoll.name))
+      .setTitle(currentPoll.name)
+      .setDescription(`💥 Voici les résultats du tour précédent ! 💥`)
+      .addField(`🕴 ${lastTour.votePropositions.length} Votants`, `Merci à vous chers votants, que la force vous guide !`)
+      .attachFiles([
+        new MessageAttachment(await ChartService.generateChart(lastTour))
+      ])
+      .setTimestamp();
 
-    await (originalMessage.channel! as TextChannel).send("",{
-      files : [chartt]
-    });
+    await (originalMessage.channel! as TextChannel).send(embed);
   }
 
   const propositions = await propoRepo
@@ -151,6 +157,7 @@ export const action: CommandAction = async function (
     .setColor(stc(currentPoll.name))
     .setTitle(currentPoll.name)
     .setDescription(`🥳 **Nouveau tour !** 🥳`)
+    .addField("Description",`Nous sommes maintenant au tour ${newTour.number} !`)
     .attachFiles([
       new MessageAttachment(await ChartService.generateChart(newTour))
     ])

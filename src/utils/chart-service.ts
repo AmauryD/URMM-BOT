@@ -45,7 +45,7 @@ export class ChartService {
             data: {
                 labels: labels,
                 datasets: [{
-                    label: `# de votes (${totalVotes} votants)`,
+                    label: `# de votes (${totalVotes} votes)`,
                     data: votes,
                     backgroundColor: backgroundcolors
                 }]

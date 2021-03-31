@@ -24,7 +24,8 @@ export const action: CommandAction = async function (
     const embed = new MessageEmbed()
       .setColor("#0095cb")
       .setTitle("📋 Annonce")
-      .setDescription(messageContent);
+      .setDescription(messageContent)
+      .attachFiles(originalMessage.attachments.array());
 
     await publishMessageOnEveryServers(embed);
   }else{

@@ -1,8 +1,10 @@
+import { MessageAttachment, MessageEmbed } from "discord.js";
 import { getCustomRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../commandHandler";
 import { TourRepository } from "../repositories/tour.repository";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
+import stc from "string-to-color";
 
 export const commandName = "status";
 
@@ -35,9 +37,38 @@ export const action: CommandAction = async function (
      throw new Error("Aucun tour n'a encore été publié !");
   }
 
-  const chartt = await ChartService.generateChart(currentTour);
+  if (currentTour.isFinal) {
+    throw new Error("Vous ne pouvez voir les résultats lors du tour final !");
+  }
 
-  await originalMessage.reply("Voici ci dessous le joli graphique !",{
-    files: [chartt]
-  });
+  const numberOfVotants = await repo
+    .createQueryBuilder("tour")
+    .leftJoinAndSelect("tour.votePropositions", "votePropositions")
+    .innerJoinAndSelect("votePropositions.votes", "votes")
+    .where("tour.id = :id",{id : currentTour.id})
+    .groupBy("votes.clientId")
+    .getCount();
+
+  let totalVotes = currentTour.votePropositions.reduce((p,c) => p + c.votes.length,0);
+  const adjustedVotes = totalVotes === 0 ? 1 : totalVotes;
+
+  const votes = currentTour.votePropositions
+    .sort((a,b) => {
+        const apercentage = 100 * (a.votes.length / adjustedVotes);
+        const bpercentage = 100 * (b.votes.length / adjustedVotes);
+        return bpercentage - apercentage;
+    });
+
+   const embed = new MessageEmbed()
+    .setColor(stc(currentPoll.name))
+    .setTitle(currentPoll.name)
+    .addField("✉ Votes",`${totalVotes} vote(s)`,true)
+    .addField("🕺 Votants",`${numberOfVotants} votant(s)`,true)
+    .addField("📈 Top",`${votes[0] ? votes[0].proposition.name : "Aucun"} est en tête !`,true)
+    .attachFiles([
+      new MessageAttachment(await ChartService.generateChart(currentTour))
+    ])
+    .setTimestamp();
+
+    await originalMessage.reply(embed);
 };

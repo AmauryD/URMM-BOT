@@ -7,7 +7,11 @@ export const publishMessageOnEveryServers = async (messageContent : string | Mes
     for (const g of DiscordClient.instance.guilds.cache.values()) {
       const repository = getRepository(GuildMember);
 
-      const server = await repository.findOne(g.id);
+      const server = await repository.findOne(g.id,{
+        where: {
+          isActive : true
+        }
+      });
 
       if (server) {
         ((await DiscordClient.instance.channels.fetch(server.broadcastChannelId)) as TextChannel).send(messageContent);
