@@ -2,4 +2,4 @@
 config.env
 /dist/
 package-lock.json
-ecosystem.*
+/prod/
