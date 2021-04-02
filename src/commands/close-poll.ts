@@ -1,6 +1,6 @@
-import { DMChannel, MessageAttachment, MessageEmbed, TextChannel } from "discord.js";
+import { DMChannel, GuildMember, MessageAttachment, MessageEmbed, User as DiscordUser } from "discord.js";
 import { getCustomRepository, getRepository } from "typeorm";
-import { CommandAction, CommandHandler } from "../commandHandler";
+import { AccessFunction, CommandAction, CommandHandler } from "../commandHandler";
 import { PollStatus } from "../models/poll";
 import { Proposition } from "../models/proposition";
 import { VoteProposition } from "../models/vote-proposition";
@@ -10,10 +10,15 @@ import { askQuestion } from "../utils/ask-question";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
 import stc from "string-to-color";
+import { isAdmin } from "../utils/is-admin";
 
 export const commandName = "close-poll";
 
 export const description = "Arrête le concours de la semaine";
+
+export const access : AccessFunction = (client: GuildMember | DiscordUser) => {
+  return isAdmin(client);
+}
 
 export const action: CommandAction = async function (
   this: CommandHandler,

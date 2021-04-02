@@ -8,7 +8,7 @@ import stc from "string-to-color";
 
 export const commandName = "status";
 
-export const description = "Commence un nouveau tour !";
+export const description = "Obtient les résultats actuels pour le tour en cours";
 
 export const action: CommandAction = async function (
   this: CommandHandler,

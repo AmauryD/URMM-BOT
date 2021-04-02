@@ -1,8 +1,7 @@
 import { DiscordClient } from "./discordclient";
 import { promises as fs } from "fs";
-import { Message } from "discord.js";
+import { GuildMember, Message, User } from "discord.js";
 import { MessageArgumentReader, parse } from "discord-command-parser";
-import { BotConfig } from "./bot-config";
 
 export type CommandAction = (
   args: MessageArgumentReader,
@@ -17,11 +16,14 @@ type CommandListenFunction = () => `${number}`;
 
 export type CommandListen = "@guilds" | `${number}` | "@dm" | CommandListenFunction;
 
+export type AccessFunction = (client : User | GuildMember) => Promise<boolean> | boolean;
+
 export interface CommandModule {
   commandName: string;
   action: CommandAction;
   description: string;
   listen: CommandListen;
+  access: AccessFunction;
 }
 
 export class CommandHandler {
@@ -53,7 +55,9 @@ export class CommandHandler {
       try {
         const listen = typeof this._commands[parsed.command].listen === "function" ? ((this._commands[parsed.command]).listen as CommandListenFunction)() : this._commands[parsed.command].listen;
 
-        console.log(listen, message.channel.type);
+        if (typeof this._commands[parsed.command].access === "function" && !(await this._commands[parsed.command].access(message.client.user ?? message.author))) {
+          throw new Error("Vous ne pouvez exécuter cette commande");
+        }
 
         if (listen === "@dm" && message.channel.type === "dm") {
           await this._commands[parsed.command].action.call(

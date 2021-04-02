@@ -8,7 +8,7 @@ import { Proposition } from "../models/proposition";
 
 export const commandName = "propose";
 
-export const description = "Propose un dessin animé !";
+export const description = "Propose un thème ! ($propose <theme>)";
 
 export const action: CommandAction = async function (
   this: CommandHandler,

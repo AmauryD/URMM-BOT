@@ -1,6 +1,6 @@
-import { DMChannel, MessageAttachment, MessageEmbed, TextChannel } from "discord.js";
+import { DMChannel, GuildMember, MessageAttachment, MessageEmbed, TextChannel, User as DiscordUser } from "discord.js";
 import { getCustomRepository, getRepository } from "typeorm";
-import { CommandAction, CommandHandler } from "../commandHandler";
+import { AccessFunction, CommandAction, CommandHandler } from "../commandHandler";
 import { Poll } from "../models/poll";
 import { Proposition } from "../models/proposition";
 import { TourType } from "../models/tour";
@@ -10,10 +10,15 @@ import { askQuestion } from "../utils/ask-question";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
 import stc from "string-to-color";
+import { isAdmin } from "../utils/is-admin";
 
 export const commandName = "start-tour";
 
 export const description = "Commence un nouveau tour !";
+
+export const access : AccessFunction = (client: GuildMember | DiscordUser) => {
+  return isAdmin(client);
+}
 
 export const action: CommandAction = async function (
   this: CommandHandler,
