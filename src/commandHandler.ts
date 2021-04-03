@@ -59,6 +59,8 @@ export class CommandHandler {
           throw new Error("Vous ne pouvez exécuter cette commande");
         }
 
+        console.log(`${new Date().toISOString()} : ${message.author.username} ${parsed.command}`);
+
         if (listen === "@dm" && message.channel.type === "dm") {
           await this._commands[parsed.command].action.call(
             this,

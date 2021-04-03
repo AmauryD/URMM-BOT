@@ -5,11 +5,13 @@ import {
   ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
+  Unique,
 } from "typeorm";
 
 import { VoteProposition } from "./vote-proposition";
 
 @Entity()
+@Unique(["clientId","voteProposition"])
 export class Vote {
   @PrimaryGeneratedColumn("uuid")
   public id!: string;

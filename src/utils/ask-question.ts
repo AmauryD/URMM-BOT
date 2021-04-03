@@ -1,8 +1,8 @@
-import { GuildMember, Message, User } from "discord.js";
+import { GuildMember, Message, MessageEmbed, User } from "discord.js";
 import { waitMessage } from "./wait-message";
 
 export async function askQuestion(
-  msg: string,
+  msg: string | MessageEmbed,
   originalMessage: Message,
   timeout: number = 60000
 ) {
@@ -12,7 +12,7 @@ export async function askQuestion(
 }
 
 export async function askQuestionRaw(
-  msg: string,
+  msg: string | MessageEmbed,
   originalMessage: Message,
   timeout: number = 60000
 ) {

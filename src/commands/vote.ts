@@ -1,3 +1,5 @@
+import { MessageEmbed } from "discord.js";
+import stc from "string-to-color";
 import { getCustomRepository, getRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../commandHandler";
 import { TourType } from "../models/tour";
@@ -50,12 +52,19 @@ export const action: CommandAction = async function (
   }
 
   if (lastTour.type === TourType.Single) {
+    const embed = new MessageEmbed()
+      .setColor(stc(currentPoll.name))
+      .setTitle("💬 Votez !")
+      .setDescription("Choisissez le chiffre correspondant à la proposition que vous voulez choisir !")
+      .addField(`⬇ Propositions`,lastTour.votePropositions.map(
+        (e, i) => `\t🔹 ${i} : ${e.proposition.name}`
+      ).join("\n"))
+      .addField("❔ Explications","Veuillez faire votre choix (ex : `1`) !\nCe tour est à réponse unique !");
+
     const response = await askQuestion(
-      `⬇ Voici les différentes propositions de la semaine :\n${lastTour.votePropositions.map(
-        (e, i) => `🔹 ${i} : ${e.proposition.name}`
-      ).join("\n")}\nVeuillez faire votre choix (ex : 1) !\nCeci est à choix unique !`,
+      embed,
       originalMessage,
-      30000
+      120000
     );
 
     const voteProposition = lastTour.votePropositions[parseInt(response, 10)];
@@ -66,33 +75,46 @@ export const action: CommandAction = async function (
     await voteRepo.save(vote);
   }else{
     const indexes = lastTour.votePropositions.map((e,i) => i);
+
+    const embed = new MessageEmbed()
+      .setColor(stc(currentPoll.name))
+      .setTitle("💬 Votez !")
+      .setDescription("Choisissez les chiffres correspondants aux propositions que vous voulez choisir !")
+      .addField(`⬇ Propositions`,lastTour.votePropositions.map(
+        (e, i) => `\t🔹 ${i} : ${e.proposition.name}`
+      ).join("\n"))
+      .addField("❔ Explications","Veuillez faire votre choix (ex : `1`) !\nSi plusieurs choix séparer par une virgule comme ceci : (ex : `1,2,3,4`)");
+
     const response = await askQuestion(
-    `⬇ Voici les différentes propositions de la semaine :\n${lastTour.votePropositions.map(
-      (e, i) => `🔹 ${i} : ${e.proposition.name}`
-    ).join("\n")}\nVeuillez faire votre choix (ex : 1) !\nSi plusieurs choix séparer par une virgule comme ceci : (ex : 1,2,3,4)`,
-    originalMessage,
-    120000
-  );
+      embed,
+      originalMessage,
+      120000
+    );
 
-  const chosen = response.split(",").map(r => r.trim()).filter((e) => e !== "");
+    const chosen = response.split(",").map(r => r.trim()).filter((e) => e !== "");
 
-  if (chosen.length === 0) {
-    throw new Error("Vous devez proposer quelque chose !");
+    if (chosen.length === 0) {
+      throw new Error("Vous devez proposer quelque chose !\nVeuillez revoter avec la commande `$vote`");
+    }
+
+    if (chosen.some((e) => !indexes.includes(parseInt(e,10)))) {
+      throw new Error("Vous devez choisir une proposition valide !\nVeuillez revoter avec la commande `$vote`");
+    }
+
+    for (const code of chosen) {
+      const voteProposition = lastTour.votePropositions[parseInt(code, 10)];
+      const vote = voteRepo.create({
+        voteProposition,
+        clientId: originalMessage.author.id,
+      });
+      await voteRepo.save(vote);
+    }
   }
 
-  if (chosen.some((e) => !indexes.includes(parseInt(e,10)))) {
-    throw new Error("Vous devez choisir une proposition valide !");
-  }
+  const embed = new MessageEmbed()
+      .setColor(stc(currentPoll.name))
+      .setTitle("✅ Votre vote a été comptabilisé !")
+      .setDescription("Utilisez la commande `$status` afin de voir les différents résultats.");
 
-  for (const code of chosen) {
-    const voteProposition = lastTour.votePropositions[parseInt(code, 10)];
-    const vote = voteRepo.create({
-      voteProposition,
-      clientId: originalMessage.author!.id,
-    });
-    await voteRepo.save(vote);
-  }
-  }
-
-  await originalMessage.reply("✅ Votre vote a été comptabilisé !");
+  await originalMessage.reply(embed);
 };
