@@ -2,6 +2,7 @@ import { readFile } from "fs/promises";
 import { Tour } from "../models/tour";
 import puppeteer, { Browser } from "puppeteer";
 import stc from "string-to-color";
+import { writeFileSync } from "fs";
 
 export class ChartService {
     private static _browser : Browser | null = null;
@@ -21,7 +22,7 @@ export class ChartService {
     static async generateChart(results : Tour) {
         let totalVotes = results.votePropositions.reduce((p,c) => p + c.votes.length,0);
         const adjustedVotes = totalVotes === 0 ? 1 : totalVotes;
-        const votes: string[] = [];
+        const votes: number[] = [];
         const backgroundcolors : string[] = [];
 
         const labels = results.votePropositions
@@ -31,17 +32,16 @@ export class ChartService {
             return bpercentage - apercentage;
         }).map((vprop) => {
             const percentage = 100 * (vprop.votes.length/ adjustedVotes);
-            votes.push(vprop.votes.length.toString());
-            backgroundcolors.push(`#${stc(vprop.proposition.name)}`);
-            return `${vprop.proposition.name}\n ${percentage.toFixed(2)}%`;
+            votes.push(vprop.votes.length);
+            backgroundcolors.push(stc(vprop.proposition.name));
+            return `${vprop.proposition.name}\n ${percentage.toFixed(0)}%`;
         });
 
         const page = await this._browser!.newPage();
         const html = await readFile("./chart.html","utf-8");
-        
 
         await page.setContent(html.replace("{{CHARTCODE}}",JSON.stringify({
-            type: 'horizontalBar',
+            type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
@@ -51,17 +51,17 @@ export class ChartService {
                 }]
             },
             options: {
+                animation: {
+                    duration: 0 // general animation time
+                },
+                indexAxis: 'y',
                 scales: {
-                    yAxes: [{
+                    x: {
+                        beginAtZero: true,
                         ticks: {
-                            beginAtZero: true
-                        }
-                    }],
-                    xAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
+                            stepSize: 1
+                        },
+                    }
                 }
             }
         })));

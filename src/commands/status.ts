@@ -47,7 +47,7 @@ export const action: CommandAction = async function (
     .innerJoinAndSelect("votePropositions.votes", "votes")
     .where("tour.id = :id",{id : currentTour.id})
     .groupBy("votes.clientId")
-    .getCount();
+    .getRawMany();
 
   let totalVotes = currentTour.votePropositions.reduce((p,c) => p + c.votes.length,0);
   const adjustedVotes = totalVotes === 0 ? 1 : totalVotes;
@@ -63,7 +63,7 @@ export const action: CommandAction = async function (
     .setColor(stc(currentPoll.name))
     .setTitle(currentPoll.name)
     .addField("✉ Votes",`${totalVotes} vote(s)`,true)
-    .addField("🕺 Votants",`${numberOfVotants} votant(s)`,true)
+    .addField("🕺 Votants",`${numberOfVotants.length} votant(s)`,true)
     .addField("📈 Top",`${votes[0] ? votes[0].proposition.name : "Aucun"} est en tête !`,true)
     .attachFiles([
       new MessageAttachment(await ChartService.generateChart(currentTour))

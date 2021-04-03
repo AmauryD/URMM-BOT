@@ -54,7 +54,7 @@ export const action: CommandAction = async function (
       `⬇ Voici les différentes propositions de la semaine :\n${lastTour.votePropositions.map(
         (e, i) => `🔹 ${i} : ${e.proposition.name}`
       ).join("\n")}\nVeuillez faire votre choix (ex : 1) !\nCeci est à choix unique !`,
-      originalMessage.author!,
+      originalMessage,
       30000
     );
 
@@ -70,8 +70,8 @@ export const action: CommandAction = async function (
     `⬇ Voici les différentes propositions de la semaine :\n${lastTour.votePropositions.map(
       (e, i) => `🔹 ${i} : ${e.proposition.name}`
     ).join("\n")}\nVeuillez faire votre choix (ex : 1) !\nSi plusieurs choix séparer par une virgule comme ceci : (ex : 1,2,3,4)`,
-    originalMessage.author!,
-    30000
+    originalMessage,
+    120000
   );
 
   const chosen = response.split(",").map(r => r.trim()).filter((e) => e !== "");

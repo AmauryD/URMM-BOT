@@ -17,11 +17,8 @@ async function init() {
   ]);
   const botUser = client.user!;
 
-  botUser.setActivity("Mange des spaghettis");
-  if (botUser.username !== "URMM-BOT") {
-    botUser.setUsername("URMM-BOT");
-  }
-  botUser.setStatus("dnd");
+  await botUser.setActivity("$help en privé pour les commandes");
+  await botUser.setStatus("online");
 
   const commandHandler = new CommandHandler(client);
   await commandHandler.init();

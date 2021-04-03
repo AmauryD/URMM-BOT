@@ -6,7 +6,7 @@ import { Proposition } from "../models/proposition";
 import { TourType } from "../models/tour";
 import { VoteProposition } from "../models/vote-proposition";
 import { TourRepository } from "../repositories/tour.repository";
-import { askQuestion } from "../utils/ask-question";
+import { askQuestion, askQuestionRaw } from "../utils/ask-question";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
 import stc from "string-to-color";
@@ -35,7 +35,7 @@ export const action: CommandAction = async function (
   if (!currentPoll) {
     const response = await askQuestion(
       "Aucun sondage n'est en cours, voulez-vous en lancer un ? (y/n)",
-      originalMessage.author!
+      originalMessage
     );
 
     if (response === "n") {
@@ -44,7 +44,7 @@ export const action: CommandAction = async function (
 
     const name = await askQuestion(
       "Donnez un petit nom au sondage ;)",
-      originalMessage.author!
+      originalMessage
     );
 
     currentPoll = await pollRepo.save(
@@ -71,7 +71,7 @@ export const action: CommandAction = async function (
 
     const response = await askQuestion(
       `La création d'un nouveau tour va engendrer la publication des résultats de l'ancien,voulez-vous vraiment clore le tour précédent ? (y/n)`,
-      originalMessage.author!
+      originalMessage
     );
 
     if (response === "n") {
@@ -104,7 +104,7 @@ export const action: CommandAction = async function (
 
   const isFinalTour = await askQuestion(
     `Ce nouveau tour est-il le tour final ? (y/n)`,
-    originalMessage.author!
+    originalMessage
   );
 
   if (isFinalTour === "y") {
@@ -114,7 +114,7 @@ export const action: CommandAction = async function (
 
   const isMulti = await askQuestion(
     `Ce tour authorise-t-il qu'une seule réponse à la fois (multi par défaut) ? (y/n)`,
-    originalMessage.author!
+    originalMessage
   );
 
   if (isMulti === "y") {
@@ -133,7 +133,7 @@ export const action: CommandAction = async function (
     `Quelles propositions doivent être dans ce tour ? (ex: 1,2,3)\n${propositionsArray.map(
       (e, i) => `🔹 ${i} : ${e.name}`
     ).join("\n")}`,
-    originalMessage.author
+    originalMessage
   );
     
   const indexes = propositionsArray.map((e,i) => i);
@@ -159,6 +159,12 @@ export const action: CommandAction = async function (
 
   newTour.votePropositions = chosenArrayObject;
 
+  const loveMessage = await askQuestionRaw(
+    `Petit message d'amour pour le tour ! (vous pouvez également joindre une image à ce message qui sera affichée en tant que bannière)`,
+    originalMessage,
+    120000
+  );
+
   const embed = new MessageEmbed()
     .setColor(stc(currentPoll.name))
     .setTitle(currentPoll.name)
@@ -168,6 +174,14 @@ export const action: CommandAction = async function (
       new MessageAttachment(await ChartService.generateChart(newTour))
     ])
     .setTimestamp();
+
+  if (loveMessage.content.trim()) {
+    embed.addField("❤️ Message d'amour ❤️", loveMessage.content);
+  }
+
+  if (loveMessage.attachments.size > 0) {
+    embed.setThumbnail(loveMessage.attachments.first()!.url);
+  }
 
   await publishMessageOnEveryServers(embed);
 

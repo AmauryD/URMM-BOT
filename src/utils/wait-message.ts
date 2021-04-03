@@ -1,22 +1,28 @@
-import { Client, Message } from "discord.js";
+import { Client, Collection, DMChannel, Message, MessageCollector } from "discord.js";
 
 
-export function waitMessage(
-  client: Client,
+export async function waitMessage(
+  message: Message,
   timeout: number = 60000
 ): Promise<Message> {
-  return new Promise((res, rej) => {
-    const listenForMessage =  (msg: Message) => {
-      if (msg.channel.type !== "dm") return;
-      clearTimeout(handler);
-      res(msg);
-    }
+  let filter = (m: Message) => m.author.id === message.author.id;
+  let response : Collection<string,Message>;
 
-    const handler = setTimeout(() => {
-      client.removeListener("message",listenForMessage);
-      rej("Vous avez attendu trop longtemps pour répondre.");
-    }, timeout);
-    
-    client.once("message",listenForMessage);
-  });
+  try {
+    response = await message.channel.awaitMessages(filter, {
+        max: 1,
+        time: timeout,
+        errors: ['time']
+    });
+  }catch(err) {
+    throw new Error("Vous avez mis trop longtemps à répondre");
+  }
+
+  const firstMessage = response.first();
+
+  if (firstMessage) {
+    return firstMessage;
+  }else{
+    throw new Error("Erreur lors de votre réponse");
+  }
 }

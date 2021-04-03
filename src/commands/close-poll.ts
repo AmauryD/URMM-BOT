@@ -36,7 +36,7 @@ export const action: CommandAction = async function (
 
   const customMessage = await askQuestion(
     "Oyez oyez, veuillez indiquer votre message customisé d'amour qui apparaîtra après mes résultats",
-    originalMessage.author!
+    originalMessage
   );
 
   const lastTour = await repo.getLastTour(currentPoll.id);
