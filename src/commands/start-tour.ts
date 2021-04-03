@@ -11,12 +11,13 @@ import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
 import stc from "string-to-color";
 import { isAdmin } from "../utils/is-admin";
+import { publishMessageOnEveryServers } from "../utils/publish";
 
 export const commandName = "start-tour";
 
 export const description = "Commence un nouveau tour !";
 
-export const access : AccessFunction = (client: GuildMember | DiscordUser) => {
+export const access : AccessFunction = (client: DiscordUser) => {
   return isAdmin(client);
 }
 
@@ -87,7 +88,7 @@ export const action: CommandAction = async function (
       ])
       .setTimestamp();
 
-    await (originalMessage.channel! as TextChannel).send(embed);
+    await publishMessageOnEveryServers(embed);
   }
 
   const propositions = await propoRepo
@@ -161,14 +162,14 @@ export const action: CommandAction = async function (
   const embed = new MessageEmbed()
     .setColor(stc(currentPoll.name))
     .setTitle(currentPoll.name)
-    .setDescription(`🥳 **Nouveau tour !** 🥳`)
-    .addField("Description",`Nous sommes maintenant au tour ${newTour.number} !`)
+    .setDescription(`🥳 **Nouveau tour @everyone !** 🥳`)
+    .addField("Description",`Nous sommes maintenant au tour n°${newTour.number} !`)
     .attachFiles([
       new MessageAttachment(await ChartService.generateChart(newTour))
     ])
     .setTimestamp();
 
-  await (originalMessage.channel as DMChannel).send(embed);
+  await publishMessageOnEveryServers(embed);
 
   await originalMessage.reply("📝 Tour publié !");
 };

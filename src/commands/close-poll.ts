@@ -11,12 +11,13 @@ import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
 import stc from "string-to-color";
 import { isAdmin } from "../utils/is-admin";
+import { publishMessageOnEveryServers } from "../utils/publish";
 
 export const commandName = "close-poll";
 
 export const description = "Arrête le concours de la semaine";
 
-export const access : AccessFunction = (client: GuildMember | DiscordUser) => {
+export const access : AccessFunction = (client: DiscordUser) => {
   return isAdmin(client);
 }
 
@@ -26,9 +27,7 @@ export const action: CommandAction = async function (
   originalMessage
 ) {
   const repo = getCustomRepository(TourRepository);
-  const propoRepo = getRepository(Proposition);
   const pollRepo = getCustomRepository(PollRepository);
-  const votePropRepo = getRepository(VoteProposition);
   const currentPoll = await getCurrentPoll();
 
   if (!currentPoll) {
@@ -66,5 +65,5 @@ export const action: CommandAction = async function (
     ])
     .setTimestamp();
 
-  await (originalMessage.channel as DMChannel).send(embed);
+  await publishMessageOnEveryServers(embed);
 };

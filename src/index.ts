@@ -69,4 +69,7 @@ async function init() {
   console.log("I'm ready to go");
 }
 
-init();
+init()
+  .catch((e) => {
+    process.exit(2);
+  })

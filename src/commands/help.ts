@@ -9,7 +9,7 @@ export const action : CommandAction = async function(this: CommandHandler,args,o
     const commands = await Promise.all(Object.values(this._commands).map(async (c) => {
         if (c.access === undefined) return c;
 
-        if (await c.access(originalMessage.client.user ?? originalMessage.author)) {
+        if (await c.access(originalMessage.author)) {
             return c;
         }else{
             return null;

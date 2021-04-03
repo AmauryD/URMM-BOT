@@ -16,7 +16,7 @@ type CommandListenFunction = () => `${number}`;
 
 export type CommandListen = "@guilds" | `${number}` | "@dm" | CommandListenFunction;
 
-export type AccessFunction = (client : User | GuildMember) => Promise<boolean> | boolean;
+export type AccessFunction = (client : User) => Promise<boolean> | boolean;
 
 export interface CommandModule {
   commandName: string;
@@ -55,7 +55,7 @@ export class CommandHandler {
       try {
         const listen = typeof this._commands[parsed.command].listen === "function" ? ((this._commands[parsed.command]).listen as CommandListenFunction)() : this._commands[parsed.command].listen;
 
-        if (typeof this._commands[parsed.command].access === "function" && !(await this._commands[parsed.command].access(message.client.user ?? message.author))) {
+        if (typeof this._commands[parsed.command].access === "function" && !(await this._commands[parsed.command].access(message.author))) {
           throw new Error("Vous ne pouvez exécuter cette commande");
         }
 

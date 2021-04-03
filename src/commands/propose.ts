@@ -1,10 +1,7 @@
-import { Guild, TextChannel } from "discord.js";
 import { getRepository } from "typeorm";
-import { BotConfig } from "../bot-config";
 import { CommandAction, CommandHandler } from "../commandHandler";
-import { DatabaseConnection } from "../db-connection";
-import { DiscordClient } from "../discordclient";
 import { Proposition } from "../models/proposition";
+import { isAdmin } from "../utils/is-admin";
 
 export const commandName = "propose";
 
@@ -28,7 +25,9 @@ export const action: CommandAction = async function (
     .groupBy("prop.clientId")
     .getCount();
 
-  if (isTooFast > 2) {
+  const isAd = await isAdmin(originalMessage.author);
+
+  if (isTooFast > 2 && !isAd) {
     throw new Error("Vous ne pouvez faire que 2 propositions par jour !");
   }
 

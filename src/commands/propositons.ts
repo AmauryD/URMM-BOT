@@ -1,8 +1,6 @@
-import { Guild, MessageEmbed, TextChannel } from "discord.js";
-import { BotConfig } from "../bot-config";
+import { MessageEmbed } from "discord.js";
 import { CommandAction, CommandHandler } from "../commandHandler";
 import { DatabaseConnection } from "../db-connection";
-import { DiscordClient } from "../discordclient";
 import { Proposition } from "../models/proposition";
 
 export const commandName = "propositions";
