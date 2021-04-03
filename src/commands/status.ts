@@ -64,7 +64,7 @@ export const action: CommandAction = async function (
     .setTitle(currentPoll.name)
     .addField("✉ Votes",`${totalVotes} vote(s)`,true)
     .addField("🕺 Votants",`${numberOfVotants.length} votant(s)`,true)
-    .addField("📈 Top",`${votes[0] ? votes[0].proposition.name : "Aucun"} est en tête !`,true)
+    .addField("📈 Top",`\`${votes[0] ? votes[0].proposition.name : "Aucun"}\` est en tête !`,true)
     .attachFiles([
       new MessageAttachment(await ChartService.generateChart(currentTour))
     ])

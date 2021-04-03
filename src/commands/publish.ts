@@ -26,6 +26,4 @@ export const action: CommandAction = async function (
     .attachFiles(originalMessage.attachments.array());
 
   await publishMessageOnEveryServers(embed);
-
-  await originalMessage.delete();
 };
