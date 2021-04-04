@@ -2,7 +2,7 @@ import { DMChannel, GuildMember, MessageAttachment, MessageEmbed, TextChannel, U
 import { getCustomRepository, getRepository } from "typeorm";
 import { AccessFunction, CommandAction, CommandHandler } from "../commandHandler";
 import { Poll } from "../models/poll";
-import { Proposition } from "../models/proposition";
+import { Proposition, PropositionState } from "../models/proposition";
 import { TourType } from "../models/tour";
 import { VoteProposition } from "../models/vote-proposition";
 import { TourRepository } from "../repositories/tour.repository";
@@ -95,7 +95,7 @@ export const action: CommandAction = async function (
     .createQueryBuilder("proposition")
     .leftJoinAndSelect("proposition.pollWinner", "pollWinner")
     .where("pollWinner.winnerId IS NULL")
-    .andWhere("proposition.state = 'validated'")
+    .andWhere(`proposition.state = '${PropositionState.VALIDATED}'`)
     .getMany();
     
   let newTour = repo.create({

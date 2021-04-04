@@ -1,6 +1,6 @@
 import { User as DiscordUser } from "discord.js";
 import { DatabaseConnection } from "../db-connection";
-import { Proposition } from "../models/proposition";
+import { Proposition, PropositionState } from "../models/proposition";
 import { AccessFunction, CommandAction, CommandHandler } from "../commandHandler";
 import { askQuestion } from "../utils/ask-question";
 import { isAdmin } from "../utils/is-admin";
@@ -25,7 +25,7 @@ export const action: CommandAction = async function (
   const propositions = await propositionRepo
     .createQueryBuilder("proposition")
     .select()
-    .where("proposition.state IS 'waiting'")
+    .where(`proposition.state = '${PropositionState.WAITING}'`)
     .getMany();
 
   await originalMessage.reply(`Il y a ${propositions.length} propositions en attente.`);

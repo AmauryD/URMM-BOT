@@ -10,6 +10,12 @@ import {
 import { Poll } from "./poll";
 import { VoteProposition } from "./vote-proposition";
 
+export enum PropositionState {
+  WAITING = "waiting",
+  VALIDATED = "validated",
+  DENIED = "denied"
+}
+
 @Entity()
 export class Proposition {
   @PrimaryGeneratedColumn("uuid")
@@ -42,8 +48,8 @@ export class Proposition {
 
   @Column({
     type: "enum",
-    enum: ["waiting","validated","rejected"],
-    default: "waiting",
+    enum: PropositionState,
+    default: PropositionState.WAITING,
   })
   public state!: string;
 

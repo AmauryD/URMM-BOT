@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js";
 import { CommandAction, CommandHandler } from "../commandHandler";
 import { DatabaseConnection } from "../db-connection";
-import { Proposition } from "../models/proposition";
+import { Proposition, PropositionState } from "../models/proposition";
 
 export const commandName = "propositions";
 
@@ -21,7 +21,7 @@ export const action: CommandAction = async function (
     .select()
     .leftJoinAndSelect("proposition.pollWinner", "pollWinner")
     .where("pollWinner.winnerId IS NULL")
-    .andWhere("proposition.state = 'validated'")
+    .andWhere(`proposition.state = '${PropositionState.VALIDATED}'`)
     .getMany();
 
     const embed = new MessageEmbed()
