@@ -21,6 +21,7 @@ export const action: CommandAction = async function (
     .select()
     .leftJoinAndSelect("proposition.pollWinner", "pollWinner")
     .where("pollWinner.winnerId IS NULL")
+    .andWhere("proposition.state = 'validated'")
     .getMany();
 
     const embed = new MessageEmbed()

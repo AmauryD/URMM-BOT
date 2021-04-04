@@ -35,6 +35,18 @@ export class Proposition {
   @CreateDateColumn()
   public createdAt!: any;
 
+  @Column("varchar", {
+    nullable: true,
+  })
+  public note!: string;
+
+  @Column({
+    type: "enum",
+    enum: ["waiting","validated","rejected"],
+    default: "waiting",
+  })
+  public state!: string;
+
   toString(): string {
     return this.name;
   }
