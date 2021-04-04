@@ -151,7 +151,7 @@ export const action: CommandAction = async function (
 
   for (const nbrString of chosen) {
     chosenArrayObject.push(await votePropRepo.save({
-      proposition: propositions[parseInt(nbrString, 10)],
+      proposition: propositionsArray[parseInt(nbrString, 10)],
       tour: newTour,
       votes : []
     }));
