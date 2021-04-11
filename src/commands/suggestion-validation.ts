@@ -38,7 +38,7 @@ export const action: CommandAction = async function (
       );
 
       if (isValidated === "y") {
-        prop.state = "validated";
+        prop.state = PropositionState.VALIDATED;
       } else {
         const denyingReason = await askQuestion(
           `Pourquoi ${prop.name} est une suggestion invalide ?`,
