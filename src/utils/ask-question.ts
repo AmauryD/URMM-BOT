@@ -6,8 +6,7 @@ export async function askQuestion(
   originalMessage: Message,
   timeout: number = 60000
 ) {
-  await originalMessage.channel.send(msg);
-  const response = await waitMessage(originalMessage, timeout);
+  const response = await askQuestionRaw(msg,originalMessage,timeout);
   return response.content;
 }
 

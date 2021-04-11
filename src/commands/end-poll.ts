@@ -13,9 +13,9 @@ import stc from "string-to-color";
 import { isAdmin } from "../utils/is-admin";
 import { publishMessageOnEveryServers } from "../utils/publish";
 
-export const commandName = "close-poll";
+export const commandName = "end-poll";
 
-export const description = "Arrête le concours de la semaine";
+export const description = "Met fin au concours de la semaine en publiant des résultats !";
 
 export const access : AccessFunction = (client: DiscordUser) => {
   return isAdmin(client);
