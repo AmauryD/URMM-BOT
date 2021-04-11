@@ -44,6 +44,7 @@ export const action: CommandAction = async function (
           `Pourquoi ${prop.name} est une suggestion invalide ?`,
           originalMessage
         );
+        prop.state = PropositionState.DENIED;
         prop.note = `Raison du refus : ${denyingReason}`;
       }
 
