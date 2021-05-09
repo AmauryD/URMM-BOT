@@ -4,12 +4,14 @@ import {
   OneToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from "typeorm";
 import { Proposition } from "./proposition";
 import { Tour } from "./tour";
 import { Vote } from "./vote";
 
 @Entity()
+@Unique("tour_proposition", ["proposition", "tour"])
 export class VoteProposition {
   @PrimaryGeneratedColumn("uuid")
   public id!: string;

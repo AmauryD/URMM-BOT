@@ -14,9 +14,16 @@ export interface CommandsObject {
 
 type CommandListenFunction = () => `${number}`;
 
-export type CommandListen = "@guilds" | `${number}` | "@dm" | CommandListenFunction;
+export type CommandListen =
+  | "@guilds"
+  | `${number}`
+  | "@dm"
+  | CommandListenFunction;
 
-export type AccessFunction = (client : User) => Promise<boolean> | boolean;
+export type AccessFunction = (
+  client: User,
+  originalMessage?: Message
+) => Promise<boolean> | boolean;
 
 export interface CommandModule {
   commandName: string;
@@ -53,13 +60,23 @@ export class CommandHandler {
     if (!parsed.success) return;
     if (this._commands[parsed.command] !== undefined) {
       try {
-        const listen = typeof this._commands[parsed.command].listen === "function" ? ((this._commands[parsed.command]).listen as CommandListenFunction)() : this._commands[parsed.command].listen;
+        const listen =
+          typeof this._commands[parsed.command].listen === "function"
+            ? (this._commands[parsed.command].listen as CommandListenFunction)()
+            : this._commands[parsed.command].listen;
 
-        if (typeof this._commands[parsed.command].access === "function" && !(await this._commands[parsed.command].access(message.author))) {
+        if (
+          typeof this._commands[parsed.command].access === "function" &&
+          !(await this._commands[parsed.command].access(message.author))
+        ) {
           throw new Error("Vous ne pouvez exécuter cette commande");
         }
 
-        console.log(`${new Date().toISOString()} : ${message.author.username} ${parsed.command}`);
+        console.log(
+          `${new Date().toISOString()} : ${message.author.username} ${
+            parsed.command
+          }`
+        );
 
         if (listen === "@dm" && message.channel.type === "dm") {
           await this._commands[parsed.command].action.call(
@@ -67,13 +84,13 @@ export class CommandHandler {
             parsed.reader,
             message
           );
-        }else if (listen === "@guilds" && message.channel.type === "text") {
+        } else if (listen === "@guilds" && message.channel.type === "text") {
           await this._commands[parsed.command].action.call(
             this,
             parsed.reader,
             message
           );
-        }else if (listen === message.channel.id) {
+        } else if (listen === message.channel.id) {
           await this._commands[parsed.command].action.call(
             this,
             parsed.reader,

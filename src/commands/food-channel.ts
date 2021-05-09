@@ -1,4 +1,4 @@
-import { MessageEmbed, TextChannel, User } from "discord.js";
+import { Message, MessageEmbed, TextChannel, User } from "discord.js";
 import { getRepository } from "typeorm";
 import {
   AccessFunction,
@@ -8,10 +8,9 @@ import {
 } from "../commandHandler";
 import { GuildMember } from "../models/server";
 
-export const commandName = "channel";
+export const commandName = "food-channel";
 
-export const description =
-  "Change location of announcement channel for current guild";
+export const description = "Change location of food channel for current guild";
 
 export const listen: CommandListen = "@guilds";
 
@@ -35,13 +34,13 @@ export const action: CommandAction = async function (
   }
 
   // text channel, because @guilds
-  guild.broadcastFoodChannelId = (originalMessage.channel as TextChannel).id;
+  guild.broadcastChannelId = (originalMessage.channel as TextChannel).id;
 
   const embed = new MessageEmbed()
     .setColor("#0095cb")
     .setTitle("🥳 Changement de channel 🥳")
     .setDescription(
-      `Les annonces de 🍔 nourriture 🍔 pour **${originalMessage.guild?.name}** seront maintenant dans ce channel !`
+      `Les annonces du 🤖 pour **${originalMessage.guild?.name}** seront maintenant dans ce channel !`
     );
 
   await repository.save(guild);

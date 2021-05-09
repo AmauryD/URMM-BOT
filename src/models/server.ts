@@ -17,9 +17,14 @@ export class GuildMember {
   })
   public broadcastChannelId!: string;
 
+  @Column("varchar", {
+    nullable: true,
+  })
+  public broadcastFoodChannelId!: string | null;
+
   @Column("boolean", {
     nullable: false,
-    default: true
+    default: true,
   })
   public isActive!: boolean;
 

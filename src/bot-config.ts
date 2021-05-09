@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 export interface BotConfigObject {
   token: string;
   publishChannel: string;
+  foodApiKey: string;
 }
 
 export class BotConfig {
@@ -29,6 +30,7 @@ export class BotConfig {
 
     config.token = parsed!.TOKEN;
     config.publishChannel = parsed!.PUBLISH_CHANNEL_ID;
+    config.foodApiKey = parsed!.FOOD_API_KEY;
 
     return (BotConfig._config = config);
   }
