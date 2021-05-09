@@ -16,7 +16,7 @@ async function init() {
   const config = await BotConfig.init();
   const [client, ,] = await Promise.all([
     DiscordClient.init(config.token),
-    // ChartService.init(),
+    ChartService.init(),
     DatabaseConnection.connect(),
   ]);
   const botUser = client.user!;
