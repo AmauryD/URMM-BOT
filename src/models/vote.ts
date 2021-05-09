@@ -11,7 +11,7 @@ import {
 import { VoteProposition } from "./vote-proposition";
 
 @Entity()
-@Unique(["clientId","voteProposition"])
+@Unique(["clientId", "voteProposition"])
 export class Vote {
   @PrimaryGeneratedColumn("uuid")
   public id!: string;
@@ -21,7 +21,10 @@ export class Vote {
   })
   public clientId!: string;
 
-  @ManyToOne(() => VoteProposition, (voteProp) => voteProp.votes)
+  @ManyToOne(() => VoteProposition, (voteProp) => voteProp.votes, {
+    nullable: false,
+    onDelete: "CASCADE",
+  })
   public voteProposition!: VoteProposition;
 
   @CreateDateColumn()

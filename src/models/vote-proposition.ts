@@ -21,11 +21,13 @@ export class VoteProposition {
 
   @ManyToOne(() => Proposition, (prop) => prop.votePropositions, {
     nullable: false,
+    onDelete: "CASCADE",
   })
   public proposition!: Proposition;
 
   @ManyToOne(() => Tour, (tour) => tour.votePropositions, {
     nullable: false,
+    onDelete: "CASCADE",
   })
   public tour!: Tour;
 }
