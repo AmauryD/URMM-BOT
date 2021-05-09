@@ -7,6 +7,7 @@ import {
   CommandListen,
 } from "../commandHandler";
 import { GuildMember } from "../models/server";
+import { isAdmin } from "../utils/is-admin";
 
 export const commandName = "food-channel";
 
@@ -15,7 +16,9 @@ export const description = "Change location of food channel for current guild";
 export const listen: CommandListen = "@guilds";
 
 export const access: AccessFunction = (client: User, originalMessage) => {
-  return originalMessage?.member?.hasPermission("ADMINISTRATOR") ?? false;
+  return (
+    originalMessage?.member?.hasPermission("ADMINISTRATOR") ?? isAdmin(client)
+  );
 };
 
 export const action: CommandAction = async function (
