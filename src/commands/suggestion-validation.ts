@@ -29,6 +29,8 @@ export const action: CommandAction = async function (
     .getMany();
 
   await originalMessage.reply(`Il y a ${propositions.length} propositions en attente.`);
+  const validationEmoji = '✅';
+  const denyEmoji = '❌';
 
     for (let prop of propositions) {
 
@@ -37,17 +39,31 @@ export const action: CommandAction = async function (
         originalMessage
       );
 
-      if (isValidated === "y") {
-        prop.state = PropositionState.VALIDATED;
-      } else {
-        const denyingReason = await askQuestion(
-          `Pourquoi ${prop.name} est une suggestion invalide ?`,
-          originalMessage
-        );
-        prop.state = PropositionState.DENIED;
-        prop.note = `Raison du refus : ${denyingReason}`;
-      }
+      originalMessage.react(validationEmoji)
+      .then(() => originalMessage.react(denyEmoji));
 
+      const filter = (reaction) => {
+        return ['✅', '❌'].includes(reaction.emoji.name);
+      };
+
+      originalMessage.awaitReactions(filter, { max: 1, time: 5000, errors: ['time'] })
+      .then(async collected => {
+        const reaction = collected.first();
+
+        if (reaction!.emoji.name === '✅') {
+          prop.state = PropositionState.VALIDATED;
+        } else {
+          const denyingReason = await askQuestion(
+            `Pourquoi ${prop.name} est une suggestion invalide ?`,
+            originalMessage
+          );
+          prop.state = PropositionState.DENIED;
+          prop.note = `${denyingReason}`;
+        }
+      })
+      .catch(collected => {
+        originalMessage.reply('Ce n\'est pas une réaction valide :c');
+      });
     }
 
   await propositionRepo.save(propositions);
