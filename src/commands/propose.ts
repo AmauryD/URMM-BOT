@@ -1,6 +1,6 @@
 import { getRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../commandHandler";
-import { Proposition } from "../models/proposition";
+import { Proposition, PropositionState } from "../models/proposition";
 import { isAdmin } from "../utils/is-admin";
 
 export const commandName = "propose";
@@ -27,7 +27,7 @@ export const action: CommandAction = async function (
 
   const isAd = await isAdmin(originalMessage.author);
 
-  if (isTooFast > 2 && !isAd) {
+  if (isTooFast > 10 && !isAd) {
     throw new Error("Vous ne pouvez faire que 2 propositions par jour !");
   }
 
@@ -35,7 +35,11 @@ export const action: CommandAction = async function (
     const prop = await propositionRepo.findOne({ name: propositionName });
 
     if (prop !== undefined) {
-      throw new Error("Cette proposition existe déjà !");
+      if (prop.state === PropositionState.DENIED) {
+        throw new Error(`Cette proposition a été refusé car : ${prop.note}`);
+      } else {
+        throw new Error("Cette proposition existe déjà !");
+      }
     }
 
     const proposition = propositionRepo.create({
