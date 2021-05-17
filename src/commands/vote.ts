@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { Message, MessageEmbed, User as DiscordUser } from "discord.js";
 import stc from "string-to-color";
 import { Any, getCustomRepository, getRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../commandHandler";
@@ -15,11 +15,17 @@ export const description = "Vote pour le tour actuel ! ";
 export const action: CommandAction = async function (
   this: CommandHandler,
   args,
-  originalMessage
+  originalMessage,
+  user
 ) {
   const repo = getCustomRepository(TourRepository);
   const voteRepo = getRepository(Vote);
   const currentPoll = await getCurrentPoll();
+  const votingUser = user || originalMessage.author;
+
+  if (!votingUser) {
+    throw new Error("Missing user :c");
+  }
 
   if (!currentPoll) {
     throw new Error("Aucun sondage n'est en cours !");
@@ -43,7 +49,7 @@ export const action: CommandAction = async function (
     .leftJoinAndSelect("tour.votePropositions", "votePropositions")
     .innerJoinAndSelect("votePropositions.votes", "votes")
     .where("tour.id = :tourId", {tourId: lastTour.id})
-    .andWhere("votes.clientId = :client",{client: originalMessage.author!.id})
+    .andWhere("votes.clientId = :client",{client: votingUser.id})
     .getOne();
 
   if (hasVoted) {
@@ -55,13 +61,13 @@ export const action: CommandAction = async function (
     .setTitle("💬 Votez !")
   if(lastTour.type === TourType.Multiple) embed.setDescription("Réagissez avec 📜 sur les suggestions de votre choix"); 
   else embed.setDescription("Réagissez avec 📜 sur la suggestion de votre choix (vous ne pouvez en choisir qu'une)");
-  originalMessage.reply(embed);
+  votingUser.send(embed);
 
   const propositions = [];  
   const votePropositionsIDs: { [name :string] : VoteProposition} = {};
   for (const voteProp of lastTour.votePropositions) {
       votePropositionsIDs[voteProp.proposition.name] = voteProp;
-      const prop = await originalMessage.reply(voteProp.proposition.name);
+      const prop = await votingUser.send(voteProp.proposition.name);
       propositions.push(prop);
       await prop.react('📜');
   }
@@ -71,7 +77,7 @@ export const action: CommandAction = async function (
   .setTitle('Urne 🗳')
   .setDescription("Réagissez sur ce message avec ✅ une fois que vous avez fait votre choix :)");
 
-  const confirm = await originalMessage.reply(confirmEmbed);
+  const confirm = await votingUser.send(confirmEmbed);
   await confirm.react('✅');
   //10 Minutes should be enough to choose and vote, i hope :/
   //Also, not bothering checking if user is the one who did $vote because he should be the only one able to react as it is the only other one in the channel
@@ -85,7 +91,7 @@ export const action: CommandAction = async function (
       chosen.push(prop.content);
       const vote = voteRepo.create({
         voteProposition,
-        clientId: originalMessage.author.id,
+        clientId: votingUser.id,
       });
       votes.push(vote);
     }
@@ -99,5 +105,5 @@ export const action: CommandAction = async function (
       .setTitle(`✅ Votre vote pour [${chosen.join()}] a été comptabilisé !`)
       .setDescription("Utilisez la commande `$status` afin de voir les différents résultats.");
 
-  await originalMessage.reply(voteAck);
+  await votingUser.send(voteAck);
 };

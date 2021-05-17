@@ -7,11 +7,13 @@ import { TourType } from "../models/tour";
 import { VoteProposition } from "../models/vote-proposition";
 import { TourRepository } from "../repositories/tour.repository";
 import { askQuestion, askQuestionRaw } from "../utils/ask-question";
+import { action as voteAction} from "../commands/vote";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
 import stc from "string-to-color";
 import { isAdmin } from "../utils/is-admin";
 import { publishMessageOnEveryServers } from "../utils/publish";
+import { updateLanguageServiceSourceFile } from "typescript";
 
 export const commandName = "start-tour";
 
@@ -170,7 +172,7 @@ export const action: CommandAction = async function (
     .setColor(stc(currentPoll.name))
     .setTitle(currentPoll.name)
     .setDescription(`🥳 **Nouveau tour @everyone !** 🥳`)
-    .addField("Description",`Nous sommes maintenant au tour n°${newTour.number} !\nUtilisez la commande \`$vote\` **en message privé** au BOT pour voter !`)
+    .addField("Description",`Nous sommes maintenant au tour n°${newTour.number} !\nRéagissez avec 🗳 ou utilisez la commande \`$vt\` **en message privé** au BOT pour voter !`)
     .attachFiles([
       new MessageAttachment(await ChartService.generateChart(newTour))
     ])
@@ -184,7 +186,26 @@ export const action: CommandAction = async function (
     embed.setThumbnail(loveMessage.attachments.first()!.url);
   }
 
-  await publishMessageOnEveryServers(embed);
+  
+  const announcementArray = await publishMessageOnEveryServers(embed);
+  for (const announcement of announcementArray) {
+      (await announcement).react('🗳');
+      //await during 24 hour
+      const collector = await (await announcement).createReactionCollector( (react,user) => react.emoji.name === '🗳', { max: 100 })
+      collector.on('collect', async reaction => {
+        const users = await reaction.users.fetch();
+        for ( const [id, user] of users){
+          if (user.username !== "URMM-BOT") {              
+            reaction?.users.remove(user);
+            voteAction(args, originalMessage, user)
+            .catch(err => {
+              user.send(`❌ ${err}`)
+            });
+          }
+        }
+      })
+  }
+  
 
   await originalMessage.reply("📝 Tour publié !");
 };

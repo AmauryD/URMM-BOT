@@ -1,11 +1,12 @@
 import { DiscordClient } from "./discordclient";
 import { promises as fs } from "fs";
-import { GuildMember, Message, User } from "discord.js";
+import { GuildMember, Message, User, ClientUser } from "discord.js";
 import { MessageArgumentReader, parse } from "discord-command-parser";
 
 export type CommandAction = (
   args: MessageArgumentReader,
-  originalMessage: Message
+  originalMessage: Message,
+  user?: User,
 ) => Promise<void>;
 
 export interface CommandsObject {
