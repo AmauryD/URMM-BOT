@@ -61,7 +61,8 @@ export const action: CommandAction = async function (
     .setTitle("💬 Votez !")
   if(lastTour.type === TourType.Multiple) embed.setDescription("Réagissez avec 📜 sur les suggestions de votre choix"); 
   else embed.setDescription("Réagissez avec 📜 sur la suggestion de votre choix (vous ne pouvez en choisir qu'une)");
-  votingUser.send(embed);
+  
+  await votingUser.send(embed);
 
   const propositions = [];  
   const votePropositionsIDs: { [name :string] : VoteProposition} = {};
