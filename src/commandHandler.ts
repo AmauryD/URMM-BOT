@@ -118,7 +118,8 @@ export class CommandHandler {
     });
     if (!parsed.success) return;
     if (this._commands[parsed.command] !== undefined) {
-      await this.invokeCommand(this._commands[parsed.command],message.author,message.channel as any,parsed.reader,message)
+      await this.invokeCommand(this._commands[parsed.command],message.author,message.channel as any,parsed.reader,message);
+      await message.delete();
     }
   }
 }

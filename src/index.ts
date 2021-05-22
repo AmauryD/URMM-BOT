@@ -16,6 +16,7 @@ import { TourRepository } from "./repositories/tour.repository";
 import getCurrentPoll from "./utils/get-current-poll";
 import { listenToTourReactions } from "./utils/listen-tour-message";
 import { TourMessage } from "./models/tour-message";
+import { randomFood } from "./utils/random-food";
 
 async function init() {
   const config = await BotConfig.init();
@@ -32,21 +33,10 @@ async function init() {
   const commandHandler = new CommandHandler(client);
   await commandHandler.init();
 
-  const pexelClient = PexelClient.init();
+  await PexelClient.init();
 
   CronJobManager.register("food", "0 12,18 * * *", async () => {
     const guildRepo = getRepository(GuildMember);
-
-    const foods = [
-      "pizza",
-      "burger",
-      "food",
-      "pasta",
-      "steak",
-      "sushi",
-      "ramen",
-      "sandwich",
-    ];
 
     const foodServers = await guildRepo
       .createQueryBuilder("gm")
@@ -54,20 +44,7 @@ async function init() {
       .andWhere("gm.broadcastFoodChannelId IS NOT NULL")
       .getMany();
 
-    const query = {
-      query: randomElement(foods),
-      per_page: 1,
-    };
-
-    const images: Record<string, any> = await pexelClient.photos.search(query);
-
-    const total = images.total_results;
-    const page = randomBetween(1, Math.min(total, 100));
-
-    const { photos }: Record<string, any> = await pexelClient.photos.search({
-      ...query,
-      page,
-    });
+    const photos = await randomFood();
 
     for (const server of foodServers) {
       try {
