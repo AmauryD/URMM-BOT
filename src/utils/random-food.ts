@@ -11,6 +11,7 @@ const foods = [
     "sushi",
     "ramen",
     "sandwich",
+    "breakfast"
 ];
 
 export async function randomFood(keywords = foods) {
