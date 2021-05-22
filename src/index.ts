@@ -3,7 +3,7 @@ import { CommandHandler } from "./commandHandler";
 import { DiscordClient } from "./discordclient";
 import "reflect-metadata";
 import { DatabaseConnection } from "./db-connection";
-import { getRepository } from "typeorm";
+import { getCustomRepository, getRepository } from "typeorm";
 import { GuildMember } from "./models/server";
 import { ChartService } from "./utils/chart-service";
 import { MessageEmbed, TextChannel } from "discord.js";
@@ -11,6 +11,11 @@ import { PexelClient } from "./pexel-client";
 import { randomBetween } from "./utils/random-number";
 import { randomElement } from "./utils/random-element";
 import { CronJobManager } from "./cronjob";
+import { PollRepository } from "./repositories/poll.repository";
+import { TourRepository } from "./repositories/tour.repository";
+import getCurrentPoll from "./utils/get-current-poll";
+import { listenToTourReactions } from "./utils/listen-tour-message";
+import { TourMessage } from "./models/tour-message";
 
 async function init() {
   const config = await BotConfig.init();
@@ -122,6 +127,25 @@ async function init() {
 
     await serverRepo.save(server);
   });
+
+  const currentPoll = await getCurrentPoll();
+
+  if (currentPoll) {
+    const lastTour = await getCustomRepository(TourRepository).getLastTour(currentPoll.id);
+
+    if (lastTour) {
+      for (const msg of lastTour.tourMessages) {
+        const guild = await client.guilds.fetch(msg.server.guildId);
+        const channel = guild.channels.cache.get(msg.server.broadcastChannelId) as TextChannel;
+        try {
+          const channelMsg = await channel.messages.fetch(msg.messageId)
+          await listenToTourReactions(channelMsg);
+        }catch(e) {
+          await getRepository(TourMessage).remove(msg);
+        }
+      }
+    }
+  }
 
   console.log("I'm ready to go");
 }

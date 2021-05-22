@@ -2,9 +2,6 @@ import { MessageAttachment, MessageEmbed, User as DiscordUser, User } from "disc
 import { getCustomRepository, getRepository } from "typeorm";
 import { AccessFunction, CommandAction, CommandHandler } from "../commandHandler";
 import { Poll } from "../models/poll";
-import { action as voteAction} from "../commands/vote";
-import { action as helpAction} from "../commands/help";
-import { action as statusAction} from "../commands/status";
 import { Proposition, PropositionState } from "../models/proposition";
 import { TourType } from "../models/tour";
 import { GuildMember as DiscordServer } from "../models/server";
@@ -19,6 +16,7 @@ import { publishMessageOnEveryServers } from "../utils/publish";
 import { TourMessage } from "../models/tour-message";
 import { DiscordClient } from "../discordclient";
 import { MessageArgumentReader } from "discord-command-parser";
+import { listenToTourReactions } from "../utils/listen-tour-message";
 
 export const commandName = "start-tour";
 
@@ -213,23 +211,8 @@ export const action: CommandAction = async function (
         messageId : announcement.id
       }));
 
-      await announcement.react('🗳');
-
-      const collector = announcement.createReactionCollector( (react,user: User) => user.id !== DiscordClient.instance.user!.id, { max: 1000 })
-      collector.on('collect', async (reaction, user) => {
-        reaction.users.remove(user);
-        if (reaction.emoji.name === "🗳") {
-          voteAction(new MessageArgumentReader([],""),user.dmChannel!, user);
-        }
-        if (reaction.emoji.name === "📊") {
-          statusAction(new MessageArgumentReader([],""), user.dmChannel!, user);
-        }
-        if (reaction.emoji.name === "❓") {
-          helpAction(new MessageArgumentReader([],""), user.dmChannel!, user);
-        }
-      });
+      await listenToTourReactions(announcement);
   }
-  
 
   await channel.send("📝 Tour publié !");
 };
