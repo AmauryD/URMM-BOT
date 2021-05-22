@@ -8,13 +8,14 @@ export const description = "Obtenir de l'aide";
 export const action: CommandAction = async function (
   this: CommandHandler,
   args,
-  originalMessage
+  channel,
+  caller
 ) {
   const commands = await Promise.all(
     Object.values(this._commands).map(async (c) => {
       if (c.access === undefined) return c;
 
-      if (await c.access(originalMessage.author, originalMessage)) {
+      if (await c.access(caller, channel)) {
         return c;
       } else {
         return null;
@@ -24,7 +25,7 @@ export const action: CommandAction = async function (
 
   const embed = new MessageEmbed()
     .setTitle("📜 Liste des commandes")
-    .setDescription(
+    .addField("En privé",
       commands
         .filter((c) => {
           return c !== null && c.listen === "@dm";
@@ -33,7 +34,17 @@ export const action: CommandAction = async function (
           return `• \`$${mod!.commandName}\` - ${mod!.description}`;
         })
         .join("\n")
+    )
+    .addField("Dans un channel public",
+      commands
+        .filter((c) => {
+          return c !== null && c.listen === "@guilds";
+        })
+        .map((mod) => {
+          return `• \`$${mod!.commandName}\` - ${mod!.description}`;
+        })
+        .join("\n")
     );
 
-  await originalMessage.reply(embed);
+  await channel.send(embed);
 };

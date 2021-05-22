@@ -10,6 +10,8 @@ export class TourRepository extends Repository<Tour> {
       .leftJoinAndSelect("tour.votePropositions", "votePropositions")
       .leftJoinAndSelect("votePropositions.votes", "votes")
       .leftJoinAndSelect("votePropositions.proposition", "proposition")
+      .leftJoinAndSelect("tour.tourMessages", "tourMessages")
+      .leftJoinAndSelect("tourMessages.server", "server")
       .where("tour.pollId = :pollId", { pollId })
       .orderBy("tour.number", "DESC")
       .getOne();

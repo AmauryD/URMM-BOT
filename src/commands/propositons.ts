@@ -1,4 +1,5 @@
 import { MessageEmbed } from "discord.js";
+import { getRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../commandHandler";
 import { DatabaseConnection } from "../db-connection";
 import { Proposition, PropositionState } from "../models/proposition";
@@ -10,11 +11,12 @@ export const description = "Liste des propositions !";
 export const action: CommandAction = async function (
   this: CommandHandler,
   args,
-  originalMessage
+  channel,
+  caller
 ) {
-  const propositionRepo = DatabaseConnection.Connection?.getRepository(
+  const propositionRepo = getRepository(
     Proposition
-  )!;
+  );
 
   const propositions = await propositionRepo
     .createQueryBuilder("proposition")
@@ -28,5 +30,5 @@ export const action: CommandAction = async function (
       .setTitle("📋 Sujets proposés")
       .setDescription(propositions.map((p) => `🔹 ${p.name}`).join("\n"));
 
-  await originalMessage.reply(embed);
+  await channel.send(embed);
 };

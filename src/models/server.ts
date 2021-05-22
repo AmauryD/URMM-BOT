@@ -4,6 +4,8 @@ import {
   Column,
   Index,
   CreateDateColumn,
+  ManyToOne,
+  OneToMany,
 } from "typeorm";
 
 @Entity()

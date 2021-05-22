@@ -4,6 +4,7 @@ import { DiscordClient } from "../discordclient";
 import { GuildMember } from "../models/server";
 
 export const publishMessageOnEveryServers = async (messageContent : string | MessageEmbed) => {
+    const announcementArray = [];
     for (const g of DiscordClient.instance.guilds.cache.values()) {
       const repository = getRepository(GuildMember);
 
@@ -14,7 +15,9 @@ export const publishMessageOnEveryServers = async (messageContent : string | Mes
       });
 
       if (server) {
-        ((await DiscordClient.instance.channels.fetch(server.broadcastChannelId)) as TextChannel).send(messageContent);
+        const annoucement = await ((await DiscordClient.instance.channels.fetch(server.broadcastChannelId)) as TextChannel).send(messageContent);
+        announcementArray.push(annoucement);
       }
     }
+    return announcementArray;
 }

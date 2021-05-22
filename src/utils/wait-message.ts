@@ -1,15 +1,16 @@
-import { Client, Collection, DMChannel, Message, MessageCollector } from "discord.js";
+import { Client, Collection, DMChannel, Message, MessageCollector, NewsChannel, TextChannel, User } from "discord.js";
 
 
 export async function waitMessage(
-  message: Message,
+  channel: TextChannel | DMChannel | NewsChannel,
+  waitFrom: User,
   timeout: number = 60000
 ): Promise<Message> {
-  let filter = (m: Message) => m.author.id === message.author.id;
+  let filter = (m: Message) => m.author.id === waitFrom.id;
   let response : Collection<string,Message>;
 
   try {
-    response = await message.channel.awaitMessages(filter, {
+    response = await channel.awaitMessages(filter, {
         max: 1,
         time: timeout,
         errors: ['time']

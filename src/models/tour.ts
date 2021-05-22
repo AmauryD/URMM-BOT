@@ -8,6 +8,7 @@ import {
   Unique,
 } from "typeorm";
 import { Poll } from "./poll";
+import { TourMessage } from "./tour-message";
 import { VoteProposition } from "./vote-proposition";
 
 export enum TourType {
@@ -39,6 +40,9 @@ export class Tour {
     default: TourType.Multiple,
   })
   public type!: TourType;
+
+  @OneToMany(() => TourMessage, (tourMessage) => tourMessage.tour)
+  public tourMessages!: TourMessage[];
 
   @Column("bool", {
     default: false,

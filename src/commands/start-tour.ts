@@ -1,17 +1,22 @@
-import { DMChannel, GuildMember, MessageAttachment, MessageEmbed, TextChannel, User as DiscordUser } from "discord.js";
+import { MessageAttachment, MessageEmbed, User as DiscordUser, User } from "discord.js";
 import { getCustomRepository, getRepository } from "typeorm";
 import { AccessFunction, CommandAction, CommandHandler } from "../commandHandler";
 import { Poll } from "../models/poll";
 import { Proposition, PropositionState } from "../models/proposition";
 import { TourType } from "../models/tour";
+import { GuildMember as DiscordServer } from "../models/server";
 import { VoteProposition } from "../models/vote-proposition";
 import { TourRepository } from "../repositories/tour.repository";
-import { askQuestion, askQuestionRaw } from "../utils/ask-question";
+import { askQuestion } from "../utils/ask-question";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
 import stc from "string-to-color";
 import { isAdmin } from "../utils/is-admin";
 import { publishMessageOnEveryServers } from "../utils/publish";
+import { TourMessage } from "../models/tour-message";
+import { DiscordClient } from "../discordclient";
+import { MessageArgumentReader } from "discord-command-parser";
+import { listenToTourReactions } from "../utils/listen-tour-message";
 
 export const commandName = "start-tour";
 
@@ -24,10 +29,12 @@ export const access : AccessFunction = (client: DiscordUser) => {
 export const action: CommandAction = async function (
   this: CommandHandler,
   args,
-  originalMessage
+  channel,
+  caller
 ) {
   const repo = getCustomRepository(TourRepository);
   const propoRepo = getRepository(Proposition);
+  const serversRepo = getRepository(DiscordServer);
   const votePropRepo = getRepository(VoteProposition);
   const pollRepo = getRepository(Poll);
   let currentPoll = await getCurrentPoll();
@@ -35,21 +42,23 @@ export const action: CommandAction = async function (
   if (!currentPoll) {
     const response = await askQuestion(
       "Aucun sondage n'est en cours, voulez-vous en lancer un ? (y/n)",
-      originalMessage
+      channel,
+      caller
     );
 
-    if (response === "n") {
+    if (response.content === "n") {
       return;
     }
 
     const name = await askQuestion(
       "Donnez un petit nom au sondage ;)",
-      originalMessage
+      channel,
+      caller
     );
 
     currentPoll = await pollRepo.save(
       pollRepo.create({
-        name,
+        name : name.content,
       })
     );
   }
@@ -71,10 +80,11 @@ export const action: CommandAction = async function (
 
     const response = await askQuestion(
       `La création d'un nouveau tour va engendrer la publication des résultats de l'ancien,voulez-vous vraiment clore le tour précédent ? (y/n)`,
-      originalMessage
+      channel,
+      caller
     );
 
-    if (response === "n") {
+    if (response.content === "n") {
       return;
     }
 
@@ -105,24 +115,26 @@ export const action: CommandAction = async function (
 
   const isFinalTour = await askQuestion(
     `Ce nouveau tour est-il le tour final ? (y/n)`,
-    originalMessage
+    channel,
+    caller
   );
 
-  if (isFinalTour === "y") {
-    await originalMessage.reply("✅ Enregistré comme tour final !");
+  if (isFinalTour.content === "y") {
+    await channel.send("✅ Enregistré comme tour final !");
     newTour.isFinal = true;
   }
 
   const isMulti = await askQuestion(
     `Ce tour authorise-t-il qu'une seule réponse à la fois (multi par défaut) ? (y/n)`,
-    originalMessage
+    channel,
+    caller
   );
 
-  if (isMulti === "y") {
-    await originalMessage.reply("✅ Enregistré comme tour à réponses uniques !");
+  if (isMulti.content === "y") {
+    await channel.send("✅ Enregistré comme tour à réponses uniques !");
     newTour.type = TourType.Single;
   }else{
-    await originalMessage.reply("✅ Enregistré comme tour à réponses multiples !");
+    await channel.send("✅ Enregistré comme tour à réponses multiples !");
     newTour.type = TourType.Multiple;
   }
 
@@ -134,11 +146,12 @@ export const action: CommandAction = async function (
     `Quelles propositions doivent être dans ce tour ? (ex: 1,2,3)\n${propositionsArray.map(
       (e, i) => `🔹 ${i} : ${e.name}`
     ).join("\n")}`,
-    originalMessage
+    channel,
+    caller
   );
     
   const indexes = propositionsArray.map((e,i) => i);
-  const chosen = propositionString.split(",").map(e => e.trim()).filter((e) => e !== "");
+  const chosen = propositionString.content.split(",").map(e => e.trim()).filter((e) => e !== "");
 
   if (chosen.length === 0) {
     throw new Error("Vous devez proposer quelque chose !");
@@ -160,9 +173,10 @@ export const action: CommandAction = async function (
 
   newTour.votePropositions = chosenArrayObject;
 
-  const loveMessage = await askQuestionRaw(
+  const loveMessage = await askQuestion(
     `Petit message d'amour pour le tour ! (vous pouvez également joindre une image à ce message qui sera affichée en tant que bannière)`,
-    originalMessage,
+    channel,
+    caller,
     120000
   );
 
@@ -170,7 +184,8 @@ export const action: CommandAction = async function (
     .setColor(stc(currentPoll.name))
     .setTitle(currentPoll.name)
     .setDescription(`🥳 **Nouveau tour @everyone !** 🥳`)
-    .addField("Description",`Nous sommes maintenant au tour n°${newTour.number} !\nUtilisez la commande \`$vote\` **en message privé** au BOT pour voter !`)
+    .addField("Description",`Nous sommes maintenant au tour n°${newTour.number} !\n`)
+    .addField("Réactions",`Cliquez sur '🗳' pour voter !\nCliquez sur '📊' pour voir les résultats !\nCliquez sur '❓' pour afficher les commandes !\n`)
     .attachFiles([
       new MessageAttachment(await ChartService.generateChart(newTour))
     ])
@@ -184,7 +199,21 @@ export const action: CommandAction = async function (
     embed.setThumbnail(loveMessage.attachments.first()!.url);
   }
 
-  await publishMessageOnEveryServers(embed);
+  
+  const announcementArray = await publishMessageOnEveryServers(embed);
+  const tourMessageRepo = getRepository(TourMessage);
 
-  await originalMessage.reply("📝 Tour publié !");
+  for (const announcement of announcementArray) {
+      await tourMessageRepo.save(tourMessageRepo.create({
+        server : await serversRepo.findOne({
+          guildId : announcement.guild?.id
+        }),
+        tour: newTour,
+        messageId : announcement.id
+      }));
+
+      await listenToTourReactions(announcement);
+  }
+
+  await channel.send("📝 Tour publié !");
 };
