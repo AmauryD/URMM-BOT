@@ -5,6 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
+  CreateDateColumn,
 } from "typeorm";
 import { Proposition } from "./proposition";
 import { Tour } from "./tour";
@@ -30,4 +31,7 @@ export class VoteProposition {
     onDelete: "CASCADE",
   })
   public tour!: Tour;
+
+  @CreateDateColumn()
+  public createdAt!: any;
 }

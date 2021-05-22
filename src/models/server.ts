@@ -7,6 +7,7 @@ import {
   ManyToOne,
   OneToMany,
 } from "typeorm";
+import { TourMessage } from "./tour-message";
 
 @Entity()
 export class GuildMember {
@@ -29,6 +30,9 @@ export class GuildMember {
     default: true,
   })
   public isActive!: boolean;
+
+  @OneToMany(() => TourMessage, (tourMessage) => tourMessage.tour)
+  public tourMessages!: TourMessage[];
 
   @CreateDateColumn()
   public createdAt!: any;

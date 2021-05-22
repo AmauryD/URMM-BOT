@@ -14,14 +14,20 @@ export async function listenToTourReactions(announcement: Message) {
     const collector = announcement.createReactionCollector( (react,user: User) => user.id !== DiscordClient.instance.user?.id, { max: 1000 })
     collector.on('collect', async (reaction, user) => {
         reaction.users.remove(user);
+
+        let channel = user.dmChannel;
+        if (!channel) {
+            channel = await user.createDM();
+        }
+
         if (reaction.emoji.name === "🗳") {
-            CommandHandler.get().invokeCommand(voteModule,user,user.dmChannel!,new MessageArgumentReader([],""));
+            CommandHandler.get().invokeCommand(voteModule,user,channel,new MessageArgumentReader([],""));
         }
         if (reaction.emoji.name === "📊") {
-            CommandHandler.get().invokeCommand(statusModule,user,user.dmChannel!,new MessageArgumentReader([],""));
+            CommandHandler.get().invokeCommand(statusModule,user,channel,new MessageArgumentReader([],""));
         }
         if (reaction.emoji.name === "❓") {
-            CommandHandler.get().invokeCommand(helpModule,user,user.dmChannel!,new MessageArgumentReader([],""));
+            CommandHandler.get().invokeCommand(helpModule,user,channel,new MessageArgumentReader([],""));
         }
     });
 }

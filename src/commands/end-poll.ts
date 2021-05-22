@@ -1,9 +1,7 @@
-import { DMChannel, GuildMember, MessageAttachment, MessageEmbed, User as DiscordUser } from "discord.js";
-import { getCustomRepository, getRepository } from "typeorm";
+import { MessageAttachment, MessageEmbed, User as DiscordUser } from "discord.js";
+import { getCustomRepository } from "typeorm";
 import { AccessFunction, CommandAction, CommandHandler } from "../commandHandler";
 import { PollStatus } from "../models/poll";
-import { Proposition } from "../models/proposition";
-import { VoteProposition } from "../models/vote-proposition";
 import { PollRepository } from "../repositories/poll.repository";
 import { TourRepository } from "../repositories/tour.repository";
 import { askQuestion } from "../utils/ask-question";

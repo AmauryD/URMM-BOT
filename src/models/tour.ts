@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   Unique,
+  CreateDateColumn,
 } from "typeorm";
 import { Poll } from "./poll";
 import { TourMessage } from "./tour-message";
@@ -29,6 +30,7 @@ export class Tour {
 
   @ManyToOne(() => Poll, (poll) => poll.tours, {
     nullable: false,
+    onDelete: "CASCADE"
   })
   public poll!: Poll;
 
@@ -49,4 +51,7 @@ export class Tour {
     nullable: false
   })
   public isFinal!: boolean;
+
+  @CreateDateColumn()
+  public createdAt!: any;
 }

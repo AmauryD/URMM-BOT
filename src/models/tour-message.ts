@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   Unique,
+  CreateDateColumn,
 } from "typeorm";
 import { Poll } from "./poll";
 import { GuildMember } from "./server";
@@ -23,7 +24,7 @@ export class TourMessage {
   })
   public tour!: Tour;
 
-  @ManyToOne(() => Tour,(tour) => tour.tourMessages,{
+  @ManyToOne(() => GuildMember,(server) => server.tourMessages,{
       nullable : true,
       onDelete : "SET NULL"
   })
@@ -33,4 +34,7 @@ export class TourMessage {
       nullable: false
   })
   public messageId!: string;
+
+  @CreateDateColumn()
+  public createdAt!: any;
 }
