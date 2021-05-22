@@ -184,7 +184,8 @@ export const action: CommandAction = async function (
     .setColor(stc(currentPoll.name))
     .setTitle(currentPoll.name)
     .setDescription(`🥳 **Nouveau tour @everyone !** 🥳`)
-    .addField("Description",`Nous sommes maintenant au tour n°${newTour.number} !\nRéagissez avec 🗳 ou utilisez la commande \`$vt\` **en message privé** au BOT pour voter !`)
+    .addField("Description",`Nous sommes maintenant au tour n°${newTour.number} !\n`)
+    .addField("Réactions",`Cliquez sur '🗳' pour voter !\nCliquez sur '📊' pour voir les résultats !\nCliquez sur '❓' pour afficher les commandes !\n`)
     .attachFiles([
       new MessageAttachment(await ChartService.generateChart(newTour))
     ])
