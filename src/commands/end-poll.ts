@@ -59,7 +59,7 @@ export const action: CommandAction = async function (
   const embed = new MessageEmbed()
     .setColor(stc(winner.proposition.name))
     .setTitle(currentPoll.name)
-    .setDescription(`🥳 **Le thème gagnant de la semaine est ${winner.proposition.name}** 🥳`)
+    .setDescription(`@everyone 🥳 **Le thème gagnant de la semaine est ${winner.proposition.name}** 🥳`)
     .addField('Description', `Cette proposition a été proposée par ${winner.proposition.clientId ? `<@${winner.proposition.clientId}>` : "Un Inconnu"} !`)
     .addField('Petit message', customMessage)
     .attachFiles([
