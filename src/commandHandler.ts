@@ -59,6 +59,15 @@ export class CommandHandler {
     }
   }
 
+  /**
+   * 
+   * @param command The command module
+   * @param caller The user which calls the command
+   * @param channel The channel used for the command
+   * @param args The args
+   * @param originalMessage the original message, if command was called from a channel, can be undefined if action is invoked from elsewhere
+   * @returns 
+   */
   async invokeCommand(command: CommandModule,caller: User,channel: TextChannel | DMChannel,args: MessageArgumentReader,originalMessage?: Message) {
       try {
         const listen =
