@@ -8,13 +8,14 @@ export const description = "Obtenir de l'aide";
 export const action: CommandAction = async function (
   this: CommandHandler,
   args,
-  originalMessage
+  channel,
+  caller
 ) {
   const commands = await Promise.all(
     Object.values(this._commands).map(async (c) => {
       if (c.access === undefined) return c;
 
-      if (await c.access(originalMessage.author, originalMessage)) {
+      if (await c.access(caller, channel)) {
         return c;
       } else {
         return null;
@@ -35,5 +36,5 @@ export const action: CommandAction = async function (
         .join("\n")
     );
 
-  await originalMessage.reply(embed);
+  await channel.send(embed);
 };

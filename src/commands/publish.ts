@@ -15,15 +15,15 @@ export const access : AccessFunction = (client: DiscordUser) => {
 export const action: CommandAction = async function (
   this: CommandHandler,
   args,
-  originalMessage
+  channel,
+  caller,
 ) {
   const messageContent = args.body;
 
   const embed = new MessageEmbed()
     .setColor("#0095cb")
     .setTitle("📋 Annonce")
-    .setDescription(messageContent)
-    .attachFiles(originalMessage.attachments.array());
+    .setDescription(messageContent);
 
   await publishMessageOnEveryServers(embed);
 };

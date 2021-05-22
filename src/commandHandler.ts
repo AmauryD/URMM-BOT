@@ -1,12 +1,13 @@
 import { DiscordClient } from "./discordclient";
 import { promises as fs } from "fs";
-import { GuildMember, Message, User, ClientUser } from "discord.js";
+import { GuildMember, Message, User, ClientUser, Channel, TextChannel, DMChannel, NewsChannel } from "discord.js";
 import { MessageArgumentReader, parse } from "discord-command-parser";
 
 export type CommandAction = (
   args: MessageArgumentReader,
-  originalMessage: Message,
-  user?: User,
+  channel: TextChannel | DMChannel,
+  user: User,
+  originalMessage?: Message
 ) => Promise<void>;
 
 export interface CommandsObject {
@@ -23,7 +24,7 @@ export type CommandListen =
 
 export type AccessFunction = (
   client: User,
-  originalMessage?: Message
+  channel?: TextChannel | DMChannel | NewsChannel
 ) => Promise<boolean> | boolean;
 
 export interface CommandModule {
@@ -54,54 +55,69 @@ export class CommandHandler {
     }
   }
 
+  async invokeCommand(command: CommandModule,caller: User,channel: TextChannel | DMChannel,args: MessageArgumentReader,originalMessage?: Message) {
+      try {
+        const listen =
+          typeof command.listen === "function"
+            ? (command.listen as CommandListenFunction)()
+            : command.listen;
+
+        if (
+          typeof command.access === "function" &&
+          !(await command.access(caller,channel))
+        ) {
+          throw new Error("Vous ne pouvez exécuter cette commande");
+        }
+
+        console.log(
+          `${new Date().toISOString()} : ${caller.username} ${
+            command.commandName
+          }`
+        );
+
+        if (listen === "@dm" && channel.type === "dm") {
+          await command.action.call(
+            this,
+            args,
+            channel,
+            caller,
+            originalMessage
+          );
+          return true;
+        } else if (listen === "@guilds" && channel.type === "text") {
+          await command.action.call(
+            this,
+            args,
+            channel,
+            caller,
+            originalMessage
+          );
+          return true;
+        } else if (listen === channel.id) {
+          await command.action.call(
+            this,
+            args,
+            channel,
+            caller,
+            originalMessage
+          );
+          return true;
+        }else{
+          return false;
+        }
+      } catch (e) {
+        const msg = e ? e.message : "Error";
+        await channel.send(`❌ ${msg}`);
+      }
+  }
+
   async handleCommand(message: Message) {
     const parsed = parse(message, "$", {
       allowSpaceBeforeCommand: true,
     });
     if (!parsed.success) return;
     if (this._commands[parsed.command] !== undefined) {
-      try {
-        const listen =
-          typeof this._commands[parsed.command].listen === "function"
-            ? (this._commands[parsed.command].listen as CommandListenFunction)()
-            : this._commands[parsed.command].listen;
-
-        if (
-          typeof this._commands[parsed.command].access === "function" &&
-          !(await this._commands[parsed.command].access(message.author))
-        ) {
-          throw new Error("Vous ne pouvez exécuter cette commande");
-        }
-
-        console.log(
-          `${new Date().toISOString()} : ${message.author.username} ${
-            parsed.command
-          }`
-        );
-
-        if (listen === "@dm" && message.channel.type === "dm") {
-          await this._commands[parsed.command].action.call(
-            this,
-            parsed.reader,
-            message
-          );
-        } else if (listen === "@guilds" && message.channel.type === "text") {
-          await this._commands[parsed.command].action.call(
-            this,
-            parsed.reader,
-            message
-          );
-        } else if (listen === message.channel.id) {
-          await this._commands[parsed.command].action.call(
-            this,
-            parsed.reader,
-            message
-          );
-        }
-      } catch (e) {
-        const msg = e ? e.message : "Error";
-        await message.channel.send(`❌ ${msg}`);
-      }
+      await this.invokeCommand(this._commands[parsed.command],message.author,message.channel as any,parsed.reader)
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, TextChannel, User } from "discord.js";
+import { Message, MessageEmbed, NewsChannel, TextChannel, User } from "discord.js";
 import { getRepository } from "typeorm";
 import {
   AccessFunction,
@@ -15,38 +15,38 @@ export const description = "Change location of food channel for current guild";
 
 export const listen: CommandListen = "@guilds";
 
-export const access: AccessFunction = (client: User, originalMessage) => {
+export const access: AccessFunction = (client: User, channel) => {
   return (
-    originalMessage?.member?.hasPermission("ADMINISTRATOR") ?? isAdmin(client)
-  );
+    (channel as TextChannel)?.guild.member(client)?.hasPermission("ADMINISTRATOR") ?? isAdmin(client)
+  ) ?? false;
 };
 
 export const action: CommandAction = async function (
   this: CommandHandler,
   args,
-  originalMessage
+  channel: any,
+  caller
 ) {
   const repository = getRepository(GuildMember);
 
-  let guild = await repository.findOne(originalMessage.guild?.id);
+  let guild = await repository.findOne(channel.guild?.id);
 
   if (!guild) {
     guild = repository.create({
-      guildId: originalMessage.guild?.id,
+      guildId: channel.guild?.id,
     });
   }
 
   // text channel, because @guilds
-  guild.broadcastFoodChannelId = (originalMessage.channel as TextChannel).id;
+  guild.broadcastFoodChannelId = (channel as TextChannel).id;
 
   const embed = new MessageEmbed()
     .setColor("#0095cb")
     .setTitle("🥳 Changement de channel 🥳")
     .setDescription(
-      `Les annonces de 🍔 nourriture 🍔 pour **${originalMessage.guild?.name}** seront maintenant dans ce channel !`
+      `Les annonces de 🍔 nourriture 🍔 pour **${channel.guild?.name}** seront maintenant dans ce channel !`
     );
 
   await repository.save(guild);
-  await originalMessage.channel.send(embed);
-  await originalMessage.delete();
+  await channel.send(embed);
 };

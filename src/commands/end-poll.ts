@@ -24,7 +24,8 @@ export const access : AccessFunction = (client: DiscordUser) => {
 export const action: CommandAction = async function (
   this: CommandHandler,
   args,
-  originalMessage
+  channel,
+  caller
 ) {
   const repo = getCustomRepository(TourRepository);
   const pollRepo = getCustomRepository(PollRepository);
@@ -36,7 +37,8 @@ export const action: CommandAction = async function (
 
   const customMessage = await askQuestion(
     "Oyez oyez, veuillez indiquer votre message customisé d'amour qui apparaîtra après mes résultats",
-    originalMessage
+    channel,
+    caller
   );
 
   const lastTour = await repo.getLastTour(currentPoll.id);

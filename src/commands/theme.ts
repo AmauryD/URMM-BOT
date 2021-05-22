@@ -11,7 +11,7 @@ export const description = "C'est quoi le thème de la semaine ?";
 export const action: CommandAction = async function (
   this: CommandHandler,
   args,
-  originalMessage
+  channel
 ) {
   const pollRepository = getRepository(Poll);
   const lastPoll = await pollRepository.createQueryBuilder("poll")
@@ -30,5 +30,5 @@ export const action: CommandAction = async function (
     .setTitle(lastPoll.name)
     .setDescription(`Le thème de la semaine est : **${lastPoll.winner!.name}** 😎`);
 
-  await originalMessage.reply(embed);
+  await channel.send(embed);
 };

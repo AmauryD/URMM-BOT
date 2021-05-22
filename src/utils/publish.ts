@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, TextChannel } from "discord.js";
+import { MessageEmbed, TextChannel } from "discord.js";
 import { getRepository } from "typeorm";
 import { DiscordClient } from "../discordclient";
 import { GuildMember } from "../models/server";
@@ -15,7 +15,7 @@ export const publishMessageOnEveryServers = async (messageContent : string | Mes
       });
 
       if (server) {
-        const annoucement = ((await DiscordClient.instance.channels.fetch(server.broadcastChannelId)) as TextChannel).send(messageContent);
+        const annoucement = await ((await DiscordClient.instance.channels.fetch(server.broadcastChannelId)) as TextChannel).send(messageContent);
         announcementArray.push(annoucement);
       }
     }

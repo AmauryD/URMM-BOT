@@ -1,4 +1,4 @@
-import { User as DiscordUser } from "discord.js";
+import { User as DiscordUser, User } from "discord.js";
 import { DatabaseConnection } from "../db-connection";
 import { Proposition, PropositionState } from "../models/proposition";
 import { AccessFunction, CommandAction, CommandHandler } from "../commandHandler";
@@ -16,7 +16,8 @@ export const access : AccessFunction = (client: DiscordUser) => {
 export const action: CommandAction = async function (
   this: CommandHandler,
   args,
-  originalMessage
+  channel,
+  caller
 ) {
   const propositionRepo = DatabaseConnection.Connection?.getRepository(
     Proposition
@@ -28,17 +29,18 @@ export const action: CommandAction = async function (
     .where(`proposition.state = '${PropositionState.WAITING}'`)
     .getMany();
 
-  await originalMessage.reply(`Il y a ${propositions.length} propositions en attente.`);
+  await channel.send(`Il y a ${propositions.length} propositions en attente.`);
 
   for (let prop of propositions) {
 
-    let isConfirmed = await askConfirmation(`Est-ce que ${prop.name} est une suggestion valide ?`, originalMessage)
+    let isConfirmed = await askConfirmation(`Est-ce que ${prop.name} est une suggestion valide ?`,channel,caller);
     if (isConfirmed) {
       prop.state = PropositionState.VALIDATED;
     } else {
       const denyingReason = await askQuestion(
         `Pourquoi ${prop.name} est une suggestion invalide ?`,
-        originalMessage
+        channel,
+        caller
       );
       prop.state = PropositionState.DENIED;
       prop.note = `${denyingReason}`;
@@ -46,5 +48,5 @@ export const action: CommandAction = async function (
   }
 
   await propositionRepo.save(propositions);
-  await originalMessage.reply("Félicitations 🎉, Vous avez terminé de valider les suggestions en attentes :)");
+  await channel.send("Félicitations 🎉, Vous avez terminé de valider les suggestions en attentes :)");
 };

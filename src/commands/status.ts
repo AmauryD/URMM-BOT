@@ -13,7 +13,8 @@ export const description = "Obtient les résultats actuels pour le tour en cours
 export const action: CommandAction = async function (
   this: CommandHandler,
   args,
-  originalMessage
+  channel,
+  user
 ) {
   const repo = getCustomRepository(TourRepository);
 
@@ -70,5 +71,5 @@ export const action: CommandAction = async function (
     ])
     .setTimestamp();
 
-    await originalMessage.reply(embed);
+    await channel.send(embed);
 };
