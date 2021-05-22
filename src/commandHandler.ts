@@ -107,6 +107,7 @@ export class CommandHandler {
         }
       } catch (e) {
         const msg = e ? e.message : "Error";
+        console.log(e);
         await channel.send(`❌ ${msg}`);
       }
   }
@@ -117,7 +118,7 @@ export class CommandHandler {
     });
     if (!parsed.success) return;
     if (this._commands[parsed.command] !== undefined) {
-      await this.invokeCommand(this._commands[parsed.command],message.author,message.channel as any,parsed.reader)
+      await this.invokeCommand(this._commands[parsed.command],message.author,message.channel as any,parsed.reader,message)
     }
   }
 }

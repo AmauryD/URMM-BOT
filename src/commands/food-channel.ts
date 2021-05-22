@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, NewsChannel, TextChannel, User } from "discord.js";
+import { DMChannel, Message, MessageEmbed, NewsChannel, TextChannel, User } from "discord.js";
 import { getRepository } from "typeorm";
 import {
   AccessFunction,
@@ -16,8 +16,11 @@ export const description = "Change location of food channel for current guild";
 export const listen: CommandListen = "@guilds";
 
 export const access: AccessFunction = (client: User, channel) => {
+  if (channel instanceof DMChannel) {
+    return false;
+  }
   return (
-    (channel as TextChannel)?.guild.member(client)?.hasPermission("ADMINISTRATOR") ?? isAdmin(client)
+    channel?.guild.member(client)?.hasPermission("ADMINISTRATOR") ?? isAdmin(client)
   ) ?? false;
 };
 

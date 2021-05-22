@@ -29,6 +29,8 @@ export class TourMessage {
   })
   public server!: GuildMember;
 
-  @Column()
+  @Column("varchar",{
+      nullable: false
+  })
   public messageId!: string;
 }
