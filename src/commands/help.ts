@@ -25,10 +25,20 @@ export const action: CommandAction = async function (
 
   const embed = new MessageEmbed()
     .setTitle("📜 Liste des commandes")
-    .setDescription(
+    .addField("En privé",
       commands
         .filter((c) => {
           return c !== null && c.listen === "@dm";
+        })
+        .map((mod) => {
+          return `• \`$${mod!.commandName}\` - ${mod!.description}`;
+        })
+        .join("\n")
+    )
+    .addField("Dans un channel public",
+      commands
+        .filter((c) => {
+          return c !== null && c.listen === "@guilds";
         })
         .map((mod) => {
           return `• \`$${mod!.commandName}\` - ${mod!.description}`;
