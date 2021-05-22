@@ -31,17 +31,21 @@ export interface CommandModule {
   commandName: string;
   action: CommandAction;
   description: string;
-  listen: CommandListen;
-  access: AccessFunction;
+  listen?: CommandListen;
+  access?: AccessFunction;
 }
 
 export class CommandHandler {
-  protected _client: DiscordClient;
-  protected _commands: CommandsObject = {};
+  private static _instance: CommandHandler;
 
-  constructor(client: DiscordClient) {
-    this._client = client;
+  public static get() {
+    if (!CommandHandler._instance) {
+      return this._instance = new CommandHandler();
+    }
+    return this._instance;
   }
+
+  protected _commands: CommandsObject = {};
 
   async init() {
     const commandList = await fs.readdir(`${__dirname}/commands`);

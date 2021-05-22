@@ -30,10 +30,10 @@ async function init() {
   await botUser.setActivity("$help en privé pour les commandes");
   await botUser.setStatus("online");
 
-  const commandHandler = new CommandHandler(client);
+  const commandHandler = CommandHandler.get();
   await commandHandler.init();
 
-  await PexelClient.init();
+  PexelClient.init();
 
   CronJobManager.register("food", "0 12,18 * * *", async () => {
     const guildRepo = getRepository(GuildMember);
