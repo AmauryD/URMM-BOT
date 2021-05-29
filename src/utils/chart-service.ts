@@ -2,6 +2,7 @@ import { readFile } from "fs/promises";
 import { Tour } from "../models/tour";
 import puppeteer, { Browser } from "puppeteer-core";
 import stc from "string-to-color";
+import { BotConfig } from "../bot-config";
 
 export class ChartService {
   private static _browser: Browser | null = null;
@@ -9,7 +10,7 @@ export class ChartService {
   static async init() {
     this._browser = await puppeteer.launch({
       headless: true,
-      executablePath: "/usr/bin/chromium-browser",
+      executablePath: BotConfig.config.chromeBin,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
   }
