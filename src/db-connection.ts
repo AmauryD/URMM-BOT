@@ -1,4 +1,5 @@
 import { Connection, createConnection } from "typeorm";
+import { BotConfig } from "./bot-config";
 import { Poll } from "./models/poll";
 import { Proposition } from "./models/proposition";
 import { GuildMember } from "./models/server";
@@ -19,11 +20,20 @@ export class DatabaseConnection {
     return (this._connection = await createConnection({
       type: "mysql",
       port: 3306,
-      host: "eu-cdbr-west-03.cleardb.net",
-      username: "b6fdde6cdcefc8",
-      password: "75392a00",
-      database: "heroku_79aa261405972d0",
-      entities: [Poll, Proposition, Tour, VoteProposition, Vote, GuildMember, User, TourMessage],
+      host: BotConfig.config.databaseHost,
+      username: BotConfig.config.databaseUser,
+      password: BotConfig.config.databasePassword,
+      database: BotConfig.config.databaseName,
+      entities: [
+        Poll,
+        Proposition,
+        Tour,
+        VoteProposition,
+        Vote,
+        GuildMember,
+        User,
+        TourMessage,
+      ],
       synchronize: true,
     }));
   }
