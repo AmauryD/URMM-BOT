@@ -10,7 +10,7 @@ export class ChartService {
   static async init() {
     this._browser = await puppeteer.launch({
       headless: true,
-      executablePath: BotConfig.config.chromeBin,
+      // executablePath: BotConfig.config.chromeBin,
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
