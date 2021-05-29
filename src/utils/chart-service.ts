@@ -11,7 +11,11 @@ export class ChartService {
     this._browser = await puppeteer.launch({
       headless: true,
       executablePath: BotConfig.config.chromeBin,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+      ],
     });
   }
 
