@@ -108,16 +108,20 @@ async function init() {
   const currentPoll = await getCurrentPoll();
 
   if (currentPoll) {
-    const lastTour = await getCustomRepository(TourRepository).getLastTour(currentPoll.id);
+    const lastTour = await getCustomRepository(TourRepository).getLastTour(
+      currentPoll.id
+    );
 
     if (lastTour) {
       for (const msg of lastTour.tourMessages) {
-        const guild = await client.guilds.fetch(msg.server.guildId);
-        const channel = guild.channels.cache.get(msg.server.broadcastChannelId) as TextChannel;
+        const guild = await client.guilds.fetch(msg.server!.guildId);
+        const channel = guild.channels.cache.get(
+          msg.server!.broadcastChannelId
+        ) as TextChannel;
         try {
-          const channelMsg = await channel.messages.fetch(msg.messageId)
+          const channelMsg = await channel.messages.fetch(msg.messageId);
           await listenToTourReactions(channelMsg);
-        }catch(e) {
+        } catch (e) {
           await getRepository(TourMessage).remove(msg);
         }
       }

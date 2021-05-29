@@ -13,15 +13,14 @@ export const action: CommandAction = async function (
   channel,
   caller
 ) {
-  const propositionRepo = getRepository(
-    Proposition
-  )!;
+  const propositionRepo = getRepository(Proposition)!;
 
   const propositionName = args.getRemaining();
 
-  const isTooFast = await propositionRepo.createQueryBuilder("prop")
+  const isTooFast = await propositionRepo
+    .createQueryBuilder("prop")
     .select()
-    .where("prop.clientId = :clientId",{clientId : caller.id})
+    .where("prop.clientId = :clientId", { clientId: caller.id })
     .andWhere("prop.createdAt >= DATE_SUB(NOW(),INTERVAL 1 DAY)")
     .groupBy("prop.clientId")
     .getCount();
@@ -29,7 +28,7 @@ export const action: CommandAction = async function (
   const isAd = await isAdmin(caller);
 
   if (isTooFast > 10 && !isAd) {
-    throw new Error("Vous ne pouvez faire que 2 propositions par jour !");
+    throw new Error("Vous ne pouvez faire que 10 propositions par jour !");
   }
 
   if (propositionName && propositionName?.trim()) {
@@ -45,7 +44,7 @@ export const action: CommandAction = async function (
 
     const proposition = propositionRepo.create({
       name: propositionName,
-      clientId: caller.id
+      clientId: caller.id,
     });
 
     await propositionRepo.save(proposition);

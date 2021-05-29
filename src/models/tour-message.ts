@@ -17,20 +17,20 @@ export class TourMessage {
   @PrimaryGeneratedColumn("uuid")
   public id!: string;
 
-  @ManyToOne(() => Tour,(tour) => tour.tourMessages,{
-      nullable : true,
-      onDelete : "SET NULL"
+  @ManyToOne(() => Tour, (tour) => tour.tourMessages, {
+    nullable: true,
+    onDelete: "SET NULL",
   })
-  public tour!: Tour;
+  public tour?: Tour;
 
-  @ManyToOne(() => Tour,(tour) => tour.tourMessages,{
-      nullable : true,
-      onDelete : "SET NULL"
+  @ManyToOne(() => GuildMember, (server) => server.tourMessages, {
+    nullable: true,
+    onDelete: "SET NULL",
   })
-  public server!: GuildMember;
+  public server?: GuildMember;
 
-  @Column("varchar",{
-      nullable: false
+  @Column("varchar", {
+    nullable: false,
   })
   public messageId!: string;
 }
