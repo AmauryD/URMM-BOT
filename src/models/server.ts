@@ -31,7 +31,7 @@ export class GuildMember {
   })
   public isActive!: boolean;
 
-  @OneToMany(() => TourMessage, (tourMessage) => tourMessage.tour)
+  @OneToMany(() => TourMessage, (tourMessage) => tourMessage.server)
   public tourMessages!: TourMessage[];
 
   @CreateDateColumn()
