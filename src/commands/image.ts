@@ -19,7 +19,7 @@ export const action: CommandAction = async function (
   caller
 ) {
   if (args.body) {
-    const photos = await randomImage([args.body]);
+    const photos = await randomImage([args.body], 10);
     await channel.send({ files: [photos[0].src.large] });
   } else {
     throw new Error("Veuillez faire une recherche avec un mot clé");
