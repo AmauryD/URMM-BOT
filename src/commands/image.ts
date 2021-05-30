@@ -21,5 +21,7 @@ export const action: CommandAction = async function (
   if (args.body) {
     const photos = await randomImage([args.body]);
     await channel.send({ files: [photos[0].src.large] });
+  } else {
+    throw new Error("Veuillez faire une recherche avec un mot clé");
   }
 };
