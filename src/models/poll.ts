@@ -8,6 +8,7 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { BaseModel } from "./base.model";
 import { Proposition } from "./proposition";
 import { Tour } from "./tour";
 
@@ -18,10 +19,7 @@ export enum PollStatus {
 }
 
 @Entity()
-export class Poll {
-  @PrimaryGeneratedColumn("uuid")
-  public id!: string;
-
+export class Poll extends BaseModel {
   @Column("varchar", {
     nullable: false,
     unique: true,
@@ -42,7 +40,4 @@ export class Poll {
 
   @OneToMany(() => Tour, (tour) => tour.poll)
   public tours!: Tour[];
-
-  @CreateDateColumn()
-  public createdAt!: any;
 }

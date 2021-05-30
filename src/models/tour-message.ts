@@ -5,36 +5,27 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
   Column,
-  Unique,
-  CreateDateColumn,
 } from "typeorm";
-import { Poll } from "./poll";
+import { BaseModel } from "./base.model";
 import { GuildMember } from "./server";
 import { Tour } from "./tour";
-import { VoteProposition } from "./vote-proposition";
 
 @Entity()
-export class TourMessage {
-  @PrimaryGeneratedColumn("uuid")
-  public id!: string;
-
+export class TourMessage extends BaseModel {
   @ManyToOne(() => Tour, (tour) => tour.tourMessages, {
-    nullable: true,
-    onDelete: "SET NULL",
+    nullable: false,
+    onDelete: "CASCADE",
   })
-  public tour?: Tour;
+  public tour!: Tour;
 
   @ManyToOne(() => GuildMember, (server) => server.tourMessages, {
-    nullable: true,
-    onDelete: "SET NULL",
+    nullable: false,
+    onDelete: "CASCADE",
   })
-  public server?: GuildMember;
+  public server!: GuildMember;
 
   @Column("varchar", {
     nullable: false,
   })
   public messageId!: string;
-
-  @CreateDateColumn()
-  public createdAt!: any;
 }

@@ -7,20 +7,18 @@ import {
   CreateDateColumn,
   Index,
 } from "typeorm";
+import { BaseModel } from "./base.model";
 import { Poll } from "./poll";
 import { VoteProposition } from "./vote-proposition";
 
 export enum PropositionState {
   WAITING = "waiting",
   VALIDATED = "validated",
-  DENIED = "denied"
+  DENIED = "denied",
 }
 
 @Entity()
-export class Proposition {
-  @PrimaryGeneratedColumn("uuid")
-  public id!: string;
-
+export class Proposition extends BaseModel {
   @Column("varchar", {
     unique: true,
   })
@@ -37,9 +35,6 @@ export class Proposition {
     nullable: true,
   })
   public clientId!: string;
-
-  @CreateDateColumn()
-  public createdAt!: any;
 
   @Column("varchar", {
     nullable: true,

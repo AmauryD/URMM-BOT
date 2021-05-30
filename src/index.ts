@@ -16,7 +16,8 @@ import { TourRepository } from "./repositories/tour.repository";
 import getCurrentPoll from "./utils/get-current-poll";
 import { listenToTourReactions } from "./utils/listen-tour-message";
 import { TourMessage } from "./models/tour-message";
-import { randomFood } from "./utils/random-food";
+import { randomImage } from "./utils/random-food";
+import { Tour } from "./models/tour";
 
 async function init() {
   const config = await BotConfig.init();
@@ -44,7 +45,7 @@ async function init() {
       .andWhere("gm.broadcastFoodChannelId IS NOT NULL")
       .getMany();
 
-    const photos = await randomFood();
+    const photos = await randomImage();
 
     for (const server of foodServers) {
       try {

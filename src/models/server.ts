@@ -35,5 +35,5 @@ export class GuildMember {
   public tourMessages!: TourMessage[];
 
   @CreateDateColumn()
-  public createdAt!: any;
+  public createdAt!: Date;
 }
