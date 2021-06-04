@@ -124,13 +124,9 @@ export class CommandHandler {
   }
 
   async handleCommand(message: Message) {
-    const parsed = parse(
-      message,
-      process.env.NODE_ENV === "test" ? "*" : BotConfig.config.commandPrefix,
-      {
-        allowSpaceBeforeCommand: true,
-      }
-    );
+    const parsed = parse(message, BotConfig.config.commandPrefix, {
+      allowSpaceBeforeCommand: true,
+    });
     if (!parsed.success) return;
     if (this._commands[parsed.command] !== undefined) {
       await this.invokeCommand(
