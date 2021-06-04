@@ -1,4 +1,5 @@
 import { MessageEmbed } from "discord.js";
+import { BotConfig } from "../bot-config";
 import { CommandAction, CommandHandler } from "../commandHandler";
 
 export const commandName = "help";
@@ -23,25 +24,29 @@ export const action: CommandAction = async function (
     })
   );
 
+  const prefix = BotConfig.config.commandPrefix;
+
   const embed = new MessageEmbed()
     .setTitle("📜 Liste des commandes")
-    .addField("En privé",
+    .addField(
+      "En privé",
       commands
         .filter((c) => {
           return c !== null && c.listen === "@dm";
         })
         .map((mod) => {
-          return `• \`$${mod!.commandName}\` - ${mod!.description}`;
+          return `• \`${prefix}${mod!.commandName}\` - ${mod!.description}`;
         })
         .join("\n")
     )
-    .addField("Dans un channel public",
+    .addField(
+      "Dans un channel public",
       commands
         .filter((c) => {
           return c !== null && c.listen === "@guilds";
         })
         .map((mod) => {
-          return `• \`$${mod!.commandName}\` - ${mod!.description}`;
+          return `• \`${prefix}${mod!.commandName}\` - ${mod!.description}`;
         })
         .join("\n")
     );
