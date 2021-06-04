@@ -13,7 +13,9 @@ import { TourRepository } from "./repositories/tour.repository";
 import getCurrentPoll from "./utils/get-current-poll";
 import { listenToTourReactions } from "./utils/listen-tour-message";
 import { TourMessage } from "./models/tour-message";
-import { randomImage } from "./utils/random-food";
+import { randomImage } from "./utils/random-image";
+import { DiscordServerRepository } from "./repositories/server.repository";
+import { breakfast, dinner, gouter, midday } from "./static/food-keywords";
 
 async function init() {
   const config = await BotConfig.init();
@@ -32,29 +34,78 @@ async function init() {
 
   PexelClient.init();
 
-  CronJobManager.register("food", "0 12,18 * * *", async () => {
-    const guildRepo = getRepository(DiscordServer);
+  const guildRepo = getCustomRepository(DiscordServerRepository);
+  const foodServers = await guildRepo
+    .activeServersBuilder()
+    .andWhere("gm.broadcastFoodChannelId IS NOT NULL")
+    .getMany();
 
-    const foodServers = await guildRepo
-      .createQueryBuilder("gm")
-      .where("gm.isActive = 1")
-      .andWhere("gm.broadcastFoodChannelId IS NOT NULL")
-      .andWhere("FIND_IN_SET(:type,server.type) > 0", {
-        type:
-          process.env.NODE_ENV === "test"
-            ? DiscordServerType.DEV
-            : DiscordServerType.PROD,
-      })
-      .getMany();
-
-    const photos = await randomImage();
+  CronJobManager.register("food", "0 9 * * *", async () => {
+    const photos = await randomImage(breakfast, 50);
 
     for (const server of foodServers) {
       try {
         const URMMManger = (await client.channels.fetch(
           server.broadcastFoodChannelId!
         )) as TextChannel;
-        URMMManger.send("Nom nom nom", { files: [photos[0].src.large] });
+        await URMMManger.send(
+          "Le petit déjeuner est le repas le plus important de la journée 😋",
+          {
+            files: [photos[0].src.large],
+          }
+        );
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  });
+
+  CronJobManager.register("food", "0 12 * * *", async () => {
+    const photos = await randomImage(midday, 50);
+
+    for (const server of foodServers) {
+      try {
+        const URMMManger = (await client.channels.fetch(
+          server.broadcastFoodChannelId!
+        )) as TextChannel;
+        await URMMManger.send("C'est l'heure de manger 😋", {
+          files: [photos[0].src.large],
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  });
+
+  CronJobManager.register("food", "0 16 * * *", async () => {
+    const photos = await randomImage(gouter, 50);
+
+    for (const server of foodServers) {
+      try {
+        const URMMManger = (await client.channels.fetch(
+          server.broadcastFoodChannelId!
+        )) as TextChannel;
+        await URMMManger.send("C'est l'heure du goûter 😋", {
+          files: [photos[0].src.large],
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  });
+
+  CronJobManager.register("food", "0 18 * * *", async () => {
+    const photos = await randomImage(dinner, 50);
+
+    for (const server of foodServers) {
+      try {
+        const URMMManger = (await client.channels.fetch(
+          server.broadcastFoodChannelId!
+        )) as TextChannel;
+        await URMMManger.send(
+          "C'est l'heure de profiter d'un bon repas après une dure journée 😋",
+          { files: [photos[0].src.large] }
+        );
       } catch (e) {
         console.log(e);
       }

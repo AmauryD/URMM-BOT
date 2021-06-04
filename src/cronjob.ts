@@ -4,7 +4,13 @@ export class CronJobManager {
   private static _crons: Record<string, CronJob> = {};
 
   public static register(name: string, period: string, job: () => void) {
-    const cron = new CronJob(period, job);
+    const cron = new CronJob(
+      period,
+      job,
+      undefined,
+      undefined,
+      "Europe/Brussels"
+    );
     this._crons[name] = cron;
     cron.start();
     return cron;

@@ -2,19 +2,7 @@ import { PexelClient } from "../pexel-client";
 import { randomElement } from "./random-element";
 import { randomBetween } from "./random-number";
 
-const foods = [
-  "pizza",
-  "burger",
-  "food",
-  "pasta",
-  "steak",
-  "sushi",
-  "ramen",
-  "sandwich",
-  "breakfast",
-];
-
-export async function randomImage(keywords = foods, randomRange = 100) {
+export async function randomImage(keywords: string[], randomRange = 100) {
   const query = {
     query: randomElement(keywords),
     per_page: 1,
