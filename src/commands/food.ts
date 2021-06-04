@@ -4,7 +4,8 @@ import {
   CommandHandler,
   CommandListen,
 } from "../commandHandler";
-import { randomImage } from "../utils/random-food";
+import { all } from "../static/food-keywords";
+import { randomImage } from "../utils/random-image";
 
 export const commandName = "food";
 
@@ -18,7 +19,7 @@ export const action: CommandAction = async function (
   channel,
   caller
 ) {
-  const photos = await randomImage();
+  const photos = await randomImage(all);
 
   await channel.send({ files: [photos[0].src.large] });
 };

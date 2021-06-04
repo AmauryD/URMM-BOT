@@ -4,7 +4,7 @@ import {
   CommandHandler,
   CommandListen,
 } from "../commandHandler";
-import { randomImage } from "../utils/random-food";
+import { randomImage } from "../utils/random-image";
 
 export const commandName = "image";
 
