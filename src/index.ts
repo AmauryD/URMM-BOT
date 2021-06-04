@@ -4,7 +4,7 @@ import { DiscordClient } from "./discordclient";
 import "reflect-metadata";
 import { DatabaseConnection } from "./db-connection";
 import { getCustomRepository, getRepository } from "typeorm";
-import { GuildMember } from "./models/server";
+import { DiscordServer } from "./models/server";
 import { ChartService } from "./utils/chart-service";
 import { MessageEmbed, TextChannel } from "discord.js";
 import { PexelClient } from "./pexel-client";
@@ -37,7 +37,7 @@ async function init() {
   PexelClient.init();
 
   CronJobManager.register("food", "0 12,18 * * *", async () => {
-    const guildRepo = getRepository(GuildMember);
+    const guildRepo = getRepository(DiscordServer);
 
     const foodServers = await guildRepo
       .createQueryBuilder("gm")
@@ -64,14 +64,14 @@ async function init() {
   });
 
   client.on("guildDelete", async (guild) => {
-    const serverRepo = getRepository(GuildMember);
+    const serverRepo = getRepository(DiscordServer);
     await serverRepo.update(guild.id, {
       isActive: false,
     });
   });
 
   client.on("guildCreate", async (guild) => {
-    const serverRepo = getRepository(GuildMember);
+    const serverRepo = getRepository(DiscordServer);
 
     let server = await serverRepo.findOne(guild.id);
 

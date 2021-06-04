@@ -1,4 +1,11 @@
-import { DMChannel, Message, MessageEmbed, NewsChannel, TextChannel, User } from "discord.js";
+import {
+  DMChannel,
+  Message,
+  MessageEmbed,
+  NewsChannel,
+  TextChannel,
+  User,
+} from "discord.js";
 import { getRepository } from "typeorm";
 import {
   AccessFunction,
@@ -6,7 +13,7 @@ import {
   CommandHandler,
   CommandListen,
 } from "../commandHandler";
-import { GuildMember } from "../models/server";
+import { DiscordServer } from "../models/server";
 import { isAdmin } from "../utils/is-admin";
 
 export const commandName = "food-channel";
@@ -20,8 +27,10 @@ export const access: AccessFunction = (client: User, channel) => {
     return false;
   }
   return (
-    channel?.guild.member(client)?.hasPermission("ADMINISTRATOR") ?? isAdmin(client)
-  ) ?? false;
+    channel?.guild.member(client)?.hasPermission("ADMINISTRATOR") ??
+    isAdmin(client) ??
+    false
+  );
 };
 
 export const action: CommandAction = async function (
@@ -30,7 +39,7 @@ export const action: CommandAction = async function (
   channel: any,
   caller
 ) {
-  const repository = getRepository(GuildMember);
+  const repository = getRepository(DiscordServer);
 
   let guild = await repository.findOne(channel.guild?.id);
 

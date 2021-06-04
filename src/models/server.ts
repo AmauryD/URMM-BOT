@@ -9,8 +9,8 @@ import {
 } from "typeorm";
 import { TourMessage } from "./tour-message";
 
-@Entity()
-export class GuildMember {
+@Entity("guild_member")
+export class DiscordServer {
   @PrimaryColumn("varchar")
   public guildId!: string;
 
@@ -23,7 +23,7 @@ export class GuildMember {
   @Column("varchar", {
     nullable: true,
   })
-  public broadcastFoodChannelId!: string | null;
+  public broadcastFoodChannelId?: string;
 
   @Column("boolean", {
     nullable: false,

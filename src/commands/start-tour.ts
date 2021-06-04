@@ -13,7 +13,7 @@ import {
 import { Poll } from "../models/poll";
 import { Proposition, PropositionState } from "../models/proposition";
 import { TourType } from "../models/tour";
-import { GuildMember as DiscordServer } from "../models/server";
+import { DiscordServer as DiscordServer } from "../models/server";
 import { VoteProposition } from "../models/vote-proposition";
 import { TourRepository } from "../repositories/tour.repository";
 import { askQuestion } from "../utils/ask-question";
@@ -228,12 +228,20 @@ export const action: CommandAction = async function (
   const announcementArray = await publishMessageOnEveryServers(embed);
   const tourMessageRepo = getRepository(TourMessage);
 
+  console.log(announcementArray);
+
   for (const announcement of announcementArray) {
     const server = await serversRepo.findOne({
       guildId: announcement.guild?.id,
     });
 
+    console.log(server);
     if (server) {
+      console.log({
+        server,
+        tour: newTour,
+        messageId: announcement.id,
+      });
       await tourMessageRepo.save(
         tourMessageRepo.create({
           server,
