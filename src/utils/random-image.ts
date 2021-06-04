@@ -2,7 +2,10 @@ import { PexelClient } from "../pexel-client";
 import { randomElement } from "./random-element";
 import { randomBetween } from "./random-number";
 
-export async function randomImage(keywords: string[], randomRange = 100) {
+export async function randomImage(
+  keywords: string[],
+  randomRange = 100
+): Promise<any[]> {
   const query = {
     query: randomElement(keywords),
     per_page: 1,

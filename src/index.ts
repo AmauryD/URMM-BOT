@@ -43,6 +43,8 @@ async function init() {
   CronJobManager.register("food", "0 9 * * *", async () => {
     const photos = await randomImage(breakfast, 50);
 
+    if (!photos.length) return;
+
     for (const server of foodServers) {
       try {
         const URMMManger = (await client.channels.fetch(
@@ -63,6 +65,8 @@ async function init() {
   CronJobManager.register("food", "0 12 * * *", async () => {
     const photos = await randomImage(midday, 50);
 
+    if (!photos.length) return;
+
     for (const server of foodServers) {
       try {
         const URMMManger = (await client.channels.fetch(
@@ -80,6 +84,8 @@ async function init() {
   CronJobManager.register("food", "0 16 * * *", async () => {
     const photos = await randomImage(gouter, 50);
 
+    if (!photos.length) return;
+
     for (const server of foodServers) {
       try {
         const URMMManger = (await client.channels.fetch(
@@ -96,6 +102,8 @@ async function init() {
 
   CronJobManager.register("food", "0 18 * * *", async () => {
     const photos = await randomImage(dinner, 50);
+
+    if (!photos.length) return;
 
     for (const server of foodServers) {
       try {

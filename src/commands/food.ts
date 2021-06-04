@@ -20,6 +20,6 @@ export const action: CommandAction = async function (
   caller
 ) {
   const photos = await randomImage(all);
-
+  if (!photos.length) return;
   await channel.send({ files: [photos[0].src.large] });
 };
