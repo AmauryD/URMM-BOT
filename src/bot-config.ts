@@ -40,7 +40,8 @@ export class BotConfig {
     config.databaseUser = parsed!.DATABASE_USER;
     config.databasePassword = parsed!.DATABASE_PASSWORD;
     config.chromeBin = parsed!.CHROME_BIN;
-    config.commandPrefix = parsed!.COMMAND_PREFIX;
+    config.commandPrefix =
+      process.env.NODE_ENV === "test" ? "*" : parsed!.COMMAND_PREFIX;
 
     return (BotConfig._config = config);
   }

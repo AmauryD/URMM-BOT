@@ -16,7 +16,7 @@ import { TourType } from "../models/tour";
 import { DiscordServer as DiscordServer } from "../models/server";
 import { VoteProposition } from "../models/vote-proposition";
 import { TourRepository } from "../repositories/tour.repository";
-import { askQuestion } from "../utils/ask-question";
+import { askConfirmation, askQuestion } from "../utils/ask-question";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
 import stc from "string-to-color";
@@ -50,13 +50,13 @@ export const action: CommandAction = async function (
   let currentPoll = await getCurrentPoll();
 
   if (!currentPoll) {
-    const response = await askQuestion(
-      "Aucun sondage n'est en cours, voulez-vous en lancer un ? (y/n)",
+    const response = await askConfirmation(
+      "Aucun sondage n'est en cours, voulez-vous en lancer un ?",
       channel,
       caller
     );
 
-    if (response.content === "n") {
+    if (!response) {
       return;
     }
 
@@ -94,13 +94,13 @@ export const action: CommandAction = async function (
       );
     }
 
-    const response = await askQuestion(
-      `La création d'un nouveau tour va engendrer la publication des résultats de l'ancien,voulez-vous vraiment clore le tour précédent ? (y/n)`,
+    const response = await askConfirmation(
+      `La création d'un nouveau tour va engendrer la publication des résultats de l'ancien,voulez-vous vraiment clore le tour précédent ? `,
       channel,
       caller
     );
 
-    if (response.content === "n") {
+    if (!response) {
       return;
     }
 
@@ -117,6 +117,8 @@ export const action: CommandAction = async function (
       ])
       .setTimestamp();
 
+    await channel.send("📝 Résultats publiés !");
+
     await publishMessageOnEveryServers(embed);
   }
 
@@ -132,24 +134,24 @@ export const action: CommandAction = async function (
     number: lastTour ? lastTour.number + 1 : 1,
   });
 
-  const isFinalTour = await askQuestion(
-    `Ce nouveau tour est-il le tour final ? (y/n)`,
+  const isFinalTour = await askConfirmation(
+    `Ce nouveau tour est-il le tour final ?`,
     channel,
     caller
   );
 
-  if (isFinalTour.content === "y") {
+  if (isFinalTour) {
     await channel.send("✅ Enregistré comme tour final !");
     newTour.isFinal = true;
   }
 
-  const isMulti = await askQuestion(
-    `Ce tour authorise-t-il qu'une seule réponse à la fois (multi par défaut) ? (y/n)`,
+  const isMulti = await askConfirmation(
+    `Ce tour authorise-t-il qu'une seule réponse à la fois (multi par défaut) ?`,
     channel,
     caller
   );
 
-  if (isMulti.content === "y") {
+  if (isMulti) {
     await channel.send("✅ Enregistré comme tour à réponses uniques !");
     newTour.type = TourType.Single;
   } else {
