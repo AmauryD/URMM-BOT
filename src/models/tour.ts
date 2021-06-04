@@ -13,8 +13,8 @@ import { TourMessage } from "./tour-message";
 import { VoteProposition } from "./vote-proposition";
 
 export enum TourType {
-  Multiple,
-  Single,
+  Multiple = "multiple",
+  Single = "single",
 }
 
 @Entity()
@@ -30,7 +30,7 @@ export class Tour {
 
   @ManyToOne(() => Poll, (poll) => poll.tours, {
     nullable: false,
-    onDelete: "CASCADE"
+    onDelete: "CASCADE",
   })
   public poll!: Poll;
 
@@ -48,7 +48,7 @@ export class Tour {
 
   @Column("bool", {
     default: false,
-    nullable: false
+    nullable: false,
   })
   public isFinal!: boolean;
 

@@ -9,6 +9,11 @@ import {
 } from "typeorm";
 import { TourMessage } from "./tour-message";
 
+export enum DiscordServerType {
+  DEV = "development",
+  PROD = "production",
+}
+
 @Entity("guild_member")
 export class DiscordServer {
   @PrimaryColumn("varchar")
@@ -30,6 +35,12 @@ export class DiscordServer {
     default: true,
   })
   public isActive!: boolean;
+
+  @Column("set", {
+    enum: DiscordServerType,
+    default: [DiscordServerType.PROD],
+  })
+  public type!: DiscordServerType;
 
   @OneToMany(() => TourMessage, (tourMessage) => tourMessage.server)
   public tourMessages!: TourMessage[];

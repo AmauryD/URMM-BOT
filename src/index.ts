@@ -4,20 +4,16 @@ import { DiscordClient } from "./discordclient";
 import "reflect-metadata";
 import { DatabaseConnection } from "./db-connection";
 import { getCustomRepository, getRepository } from "typeorm";
-import { DiscordServer } from "./models/server";
+import { DiscordServer, DiscordServerType } from "./models/server";
 import { ChartService } from "./utils/chart-service";
 import { MessageEmbed, TextChannel } from "discord.js";
 import { PexelClient } from "./pexel-client";
-import { randomBetween } from "./utils/random-number";
-import { randomElement } from "./utils/random-element";
 import { CronJobManager } from "./cronjob";
-import { PollRepository } from "./repositories/poll.repository";
 import { TourRepository } from "./repositories/tour.repository";
 import getCurrentPoll from "./utils/get-current-poll";
 import { listenToTourReactions } from "./utils/listen-tour-message";
 import { TourMessage } from "./models/tour-message";
 import { randomImage } from "./utils/random-food";
-import { Tour } from "./models/tour";
 
 async function init() {
   const config = await BotConfig.init();
@@ -43,6 +39,12 @@ async function init() {
       .createQueryBuilder("gm")
       .where("gm.isActive = 1")
       .andWhere("gm.broadcastFoodChannelId IS NOT NULL")
+      .andWhere("FIND_IN_SET(:type,server.type) > 0", {
+        type:
+          process.env.NODE_ENV === "test"
+            ? DiscordServerType.DEV
+            : DiscordServerType.PROD,
+      })
       .getMany();
 
     const photos = await randomImage();
@@ -129,7 +131,9 @@ async function init() {
     }
   }
 
-  console.log("I'm ready to go");
+  console.log(
+    `Bot prêt et lancé en mode ${process.env.NODE_ENV ?? "production"}`
+  );
 }
 
 init().catch((e) => {

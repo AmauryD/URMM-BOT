@@ -24,6 +24,7 @@ export class DatabaseConnection {
       username: BotConfig.config.databaseUser,
       password: BotConfig.config.databasePassword,
       database: BotConfig.config.databaseName,
+      logging: process.env.NODE_ENV === "test" ? false : false,
       entities: [
         Poll,
         Proposition,

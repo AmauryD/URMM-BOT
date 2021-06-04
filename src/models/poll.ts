@@ -15,6 +15,7 @@ import { Tour } from "./tour";
 export enum PollStatus {
   Active = "active",
   Finished = "finished",
+  Draft = "draft", // when created in test mode
   Closed = "closed",
 }
 

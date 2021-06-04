@@ -11,6 +11,7 @@ import {
   NewsChannel,
 } from "discord.js";
 import { MessageArgumentReader, parse } from "discord-command-parser";
+import { BotConfig } from "./bot-config";
 
 export type CommandAction = (
   args: MessageArgumentReader,
@@ -123,9 +124,13 @@ export class CommandHandler {
   }
 
   async handleCommand(message: Message) {
-    const parsed = parse(message, "$", {
-      allowSpaceBeforeCommand: true,
-    });
+    const parsed = parse(
+      message,
+      process.env.NODE_ENV === "test" ? "*" : BotConfig.config.commandPrefix,
+      {
+        allowSpaceBeforeCommand: true,
+      }
+    );
     if (!parsed.success) return;
     if (this._commands[parsed.command] !== undefined) {
       await this.invokeCommand(
