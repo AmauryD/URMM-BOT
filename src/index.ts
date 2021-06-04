@@ -37,7 +37,7 @@ async function init() {
   const guildRepo = getCustomRepository(DiscordServerRepository);
   const foodServers = await guildRepo
     .activeServersBuilder()
-    .andWhere("gm.broadcastFoodChannelId IS NOT NULL")
+    .andWhere("server.broadcastFoodChannelId IS NOT NULL")
     .getMany();
 
   CronJobManager.register("food", "0 9 * * *", async () => {

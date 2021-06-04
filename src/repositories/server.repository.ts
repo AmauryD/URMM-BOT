@@ -3,6 +3,9 @@ import { DiscordServer, DiscordServerType } from "../models/server";
 
 @EntityRepository(DiscordServer)
 export class DiscordServerRepository extends Repository<DiscordServer> {
+  /**
+   * Alias is "server"
+   */
   public activeServersBuilder() {
     return this.createQueryBuilder("server")
       .where("FIND_IN_SET(:type,server.type) > 0", {
