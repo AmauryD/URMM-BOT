@@ -10,10 +10,10 @@ import {
   CommandAction,
   CommandHandler,
 } from "../commandHandler";
-import { Poll } from "../models/poll";
+import { Poll, PollStatus } from "../models/poll";
 import { Proposition, PropositionState } from "../models/proposition";
 import { TourType } from "../models/tour";
-import { GuildMember as DiscordServer } from "../models/server";
+import { DiscordServer as DiscordServer } from "../models/server";
 import { VoteProposition } from "../models/vote-proposition";
 import { TourRepository } from "../repositories/tour.repository";
 import { askQuestion } from "../utils/ask-question";
@@ -26,6 +26,7 @@ import { TourMessage } from "../models/tour-message";
 import { DiscordClient } from "../discordclient";
 import { MessageArgumentReader } from "discord-command-parser";
 import { listenToTourReactions } from "../utils/listen-tour-message";
+import { DiscordServerRepository } from "../repositories/server.repository";
 
 export const commandName = "start-tour";
 
@@ -43,8 +44,8 @@ export const action: CommandAction = async function (
 ) {
   const repo = getCustomRepository(TourRepository);
   const propoRepo = getRepository(Proposition);
-  const serversRepo = getRepository(DiscordServer);
   const votePropRepo = getRepository(VoteProposition);
+  const tourMessageRepo = getRepository(TourMessage);
   const pollRepo = getRepository(Poll);
   let currentPoll = await getCurrentPoll();
 
@@ -68,6 +69,10 @@ export const action: CommandAction = async function (
     currentPoll = await pollRepo.save(
       pollRepo.create({
         name: name.content,
+        status:
+          process.env.NODE_ENV === "test"
+            ? PollStatus.Draft
+            : PollStatus.Active,
       })
     );
   }
@@ -226,24 +231,16 @@ export const action: CommandAction = async function (
   }
 
   const announcementArray = await publishMessageOnEveryServers(embed);
-  const tourMessageRepo = getRepository(TourMessage);
 
   for (const announcement of announcementArray) {
-    const server = await serversRepo.findOne({
-      guildId: announcement.guild?.id,
-    });
+    const tourMessage = new TourMessage();
+    tourMessage.server = announcement.server;
+    tourMessage.messageId = announcement.message.id;
+    tourMessage.tour = newTour;
 
-    if (server) {
-      await tourMessageRepo.save(
-        tourMessageRepo.create({
-          server,
-          tour: newTour,
-          messageId: announcement.id,
-        })
-      );
-    }
+    await tourMessageRepo.save(tourMessage);
 
-    await listenToTourReactions(announcement);
+    await listenToTourReactions(announcement.message);
   }
 
   await channel.send("📝 Tour publié !");

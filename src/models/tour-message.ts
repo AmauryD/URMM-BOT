@@ -7,7 +7,7 @@ import {
   Column,
 } from "typeorm";
 import { BaseModel } from "./base.model";
-import { GuildMember } from "./server";
+import { DiscordServer } from "./server";
 import { Tour } from "./tour";
 
 @Entity()
@@ -18,11 +18,11 @@ export class TourMessage extends BaseModel {
   })
   public tour!: Tour;
 
-  @ManyToOne(() => GuildMember, (server) => server.tourMessages, {
+  @ManyToOne(() => DiscordServer, (server) => server.tourMessages, {
     nullable: false,
     onDelete: "CASCADE",
   })
-  public server!: GuildMember;
+  public server!: DiscordServer;
 
   @Column("varchar", {
     nullable: false,

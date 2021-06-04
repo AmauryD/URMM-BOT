@@ -2,7 +2,7 @@ import { Connection, createConnection } from "typeorm";
 import { BotConfig } from "./bot-config";
 import { Poll } from "./models/poll";
 import { Proposition } from "./models/proposition";
-import { GuildMember } from "./models/server";
+import { DiscordServer } from "./models/server";
 import { Tour } from "./models/tour";
 import { TourMessage } from "./models/tour-message";
 import { User } from "./models/user";
@@ -24,13 +24,14 @@ export class DatabaseConnection {
       username: BotConfig.config.databaseUser,
       password: BotConfig.config.databasePassword,
       database: BotConfig.config.databaseName,
+      logging: process.env.NODE_ENV === "test" ? false : false,
       entities: [
         Poll,
         Proposition,
         Tour,
         VoteProposition,
         Vote,
-        GuildMember,
+        DiscordServer,
         User,
         TourMessage,
       ],

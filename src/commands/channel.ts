@@ -6,7 +6,7 @@ import {
   CommandHandler,
   CommandListen,
 } from "../commandHandler";
-import { GuildMember } from "../models/server";
+import { DiscordServer } from "../models/server";
 import { isAdmin } from "../utils/is-admin";
 
 export const commandName = "channel";
@@ -21,8 +21,10 @@ export const access: AccessFunction = (client: User, channel) => {
     return false;
   }
   return (
-    channel?.guild.member(client)?.hasPermission("ADMINISTRATOR") ?? isAdmin(client)
-  ) ?? false;
+    channel?.guild.member(client)?.hasPermission("ADMINISTRATOR") ??
+    isAdmin(client) ??
+    false
+  );
 };
 
 export const action: CommandAction = async function (
@@ -31,7 +33,7 @@ export const action: CommandAction = async function (
   channel,
   caller
 ) {
-  const repository = getRepository(GuildMember);
+  const repository = getRepository(DiscordServer);
   const textChannel = channel as TextChannel;
 
   let guild = await repository.findOne(textChannel.guild.id);

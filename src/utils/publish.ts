@@ -1,23 +1,25 @@
 import { MessageEmbed, TextChannel } from "discord.js";
-import { getRepository } from "typeorm";
+import { getCustomRepository, getRepository } from "typeorm";
 import { DiscordClient } from "../discordclient";
-import { GuildMember } from "../models/server";
+import { DiscordServer, DiscordServerType } from "../models/server";
+import { DiscordServerRepository } from "../repositories/server.repository";
 
-export const publishMessageOnEveryServers = async (messageContent : string | MessageEmbed) => {
-    const announcementArray = [];
-    for (const g of DiscordClient.instance.guilds.cache.values()) {
-      const repository = getRepository(GuildMember);
+export const publishMessageOnEveryServers = async (
+  messageContent: string | MessageEmbed
+) => {
+  const announcementArray = [];
+  const repository = getCustomRepository(DiscordServerRepository);
+  const servers = await repository.activeServersBuilder().getMany();
 
-      const server = await repository.findOne(g.id,{
-        where: {
-          isActive : true
-        }
-      });
+  for (const server of servers) {
+    const channel = (await DiscordClient.instance.channels.fetch(
+      server.broadcastChannelId
+    )) as TextChannel;
 
-      if (server) {
-        const annoucement = await ((await DiscordClient.instance.channels.fetch(server.broadcastChannelId)) as TextChannel).send(messageContent);
-        announcementArray.push(annoucement);
-      }
-    }
-    return announcementArray;
-}
+    const annoucement = await channel.send(messageContent);
+
+    announcementArray.push({ message: annoucement, server });
+  }
+
+  return announcementArray;
+};
