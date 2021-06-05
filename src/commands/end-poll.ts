@@ -1,9 +1,17 @@
-import { MessageAttachment, MessageEmbed, User as DiscordUser } from "discord.js";
+import {
+  MessageAttachment,
+  MessageEmbed,
+  User as DiscordUser,
+} from "discord.js";
 import { getCustomRepository } from "typeorm";
-import { AccessFunction, CommandAction, CommandHandler } from "../commandHandler";
+import {
+  AccessFunction,
+  CommandAction,
+  CommandHandler,
+} from "../command-handler";
 import { PollStatus } from "../models/poll";
-import { PollRepository } from "../repositories/poll.repository";
-import { TourRepository } from "../repositories/tour.repository";
+import { PollRepository } from "../repositories/poll-repository";
+import { TourRepository } from "../repositories/tour-repository";
 import { askQuestion } from "../utils/ask-question";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
@@ -13,11 +21,12 @@ import { publishMessageOnEveryServers } from "../utils/publish";
 
 export const commandName = "end-poll";
 
-export const description = "Met fin au concours de la semaine en publiant des résultats !";
+export const description =
+  "Met fin au concours de la semaine en publiant des résultats !";
 
-export const access : AccessFunction = (client: DiscordUser) => {
+export const access: AccessFunction = (client: DiscordUser) => {
   return isAdmin(client);
-}
+};
 
 export const action: CommandAction = async function (
   this: CommandHandler,
@@ -45,23 +54,31 @@ export const action: CommandAction = async function (
     throw new Error("Il n'y a pas de tour actif dans ce poll");
   }
 
-  const [winner] = lastTour.votePropositions
-    .sort((a,b) => {
-        return b.votes.length - a.votes.length;
-    });
+  const [winner] = lastTour.votePropositions.sort((a, b) => {
+    return b.votes.length - a.votes.length;
+  });
 
-  currentPoll.winner = winner.proposition; 
+  currentPoll.winner = winner.proposition;
   currentPoll.status = PollStatus.Finished;
   await pollRepo.save(currentPoll);
 
   const embed = new MessageEmbed()
     .setColor(stc(winner.proposition.name))
     .setTitle(currentPoll.name)
-    .setDescription(`@everyone 🥳 **Le thème gagnant de la semaine est ${winner.proposition.name}** 🥳`)
-    .addField('Description', `Cette proposition a été proposée par ${winner.proposition.clientId ? `<@${winner.proposition.clientId}>` : "Un Inconnu"} !`)
-    .addField('Petit message', customMessage)
+    .setDescription(
+      `@everyone 🥳 **Le thème gagnant de la semaine est ${winner.proposition.name}** 🥳`
+    )
+    .addField(
+      "Description",
+      `Cette proposition a été proposée par ${
+        winner.proposition.clientId
+          ? `<@${winner.proposition.clientId}>`
+          : "Un Inconnu"
+      } !`
+    )
+    .addField("Petit message", customMessage)
     .attachFiles([
-      new MessageAttachment(await ChartService.generateChart(lastTour))
+      new MessageAttachment(await ChartService.generateChart(lastTour)),
     ])
     .setTimestamp();
 

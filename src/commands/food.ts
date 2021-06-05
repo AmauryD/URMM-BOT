@@ -3,7 +3,7 @@ import {
   CommandAction,
   CommandHandler,
   CommandListen,
-} from "../commandHandler";
+} from "../command-handler";
 import { all } from "../static/food-keywords";
 import { randomImage } from "../utils/random-image";
 

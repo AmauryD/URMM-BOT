@@ -1,7 +1,7 @@
 import { MessageEmbed } from "discord.js";
 import stc from "string-to-color";
 import { getRepository } from "typeorm";
-import { CommandAction, CommandHandler } from "../commandHandler";
+import { CommandAction, CommandHandler } from "../command-handler";
 import { Poll } from "../models/poll";
 
 export const commandName = "theme";
@@ -14,10 +14,11 @@ export const action: CommandAction = async function (
   channel
 ) {
   const pollRepository = getRepository(Poll);
-  const lastPoll = await pollRepository.createQueryBuilder("poll")
+  const lastPoll = await pollRepository
+    .createQueryBuilder("poll")
     .select()
-    .innerJoinAndSelect("poll.winner","winner")
-    .orderBy("poll.createdAt","DESC")
+    .innerJoinAndSelect("poll.winner", "winner")
+    .orderBy("poll.createdAt", "DESC")
     .where("poll.status != 'active'")
     .getOne();
 
@@ -28,7 +29,9 @@ export const action: CommandAction = async function (
   const embed = new MessageEmbed()
     .setColor(stc(lastPoll.name))
     .setTitle(lastPoll.name)
-    .setDescription(`Le thème de la semaine est : **${lastPoll.winner!.name}** 😎`);
+    .setDescription(
+      `Le thème de la semaine est : **${lastPoll.winner!.name}** 😎`
+    );
 
   await channel.send(embed);
 };

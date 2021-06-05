@@ -27,7 +27,7 @@ export class BotConfig {
 
   public static async init(): Promise<BotConfigObject> {
     let { parsed, error } = dotenv.config({ path: "config.env" });
-    let config: BotConfigObject = {} as any;
+    const config: BotConfigObject = {} as any;
 
     if (parsed === undefined) {
       parsed = process.env as any;

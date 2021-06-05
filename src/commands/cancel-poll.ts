@@ -1,9 +1,13 @@
 import { User as DiscordUser } from "discord.js";
 import { getCustomRepository } from "typeorm";
-import { AccessFunction, CommandAction, CommandHandler } from "../commandHandler";
+import {
+  AccessFunction,
+  CommandAction,
+  CommandHandler,
+} from "../command-handler";
 import { PollStatus } from "../models/poll";
-import { PollRepository } from "../repositories/poll.repository";
-import { TourRepository } from "../repositories/tour.repository";
+import { PollRepository } from "../repositories/poll-repository";
+import { TourRepository } from "../repositories/tour-repository";
 import getCurrentPoll from "../utils/get-current-poll";
 import stc from "string-to-color";
 import { isAdmin } from "../utils/is-admin";
@@ -13,9 +17,9 @@ export const commandName = "cancel-poll";
 
 export const description = "Annule le concours de la semaine";
 
-export const access : AccessFunction = (client: DiscordUser) => {
+export const access: AccessFunction = (client: DiscordUser) => {
   return isAdmin(client);
-}
+};
 
 export const action: CommandAction = async function (
   this: CommandHandler,
