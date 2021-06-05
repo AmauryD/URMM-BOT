@@ -1,14 +1,15 @@
 import { MessageAttachment, MessageEmbed } from "discord.js";
 import { getCustomRepository } from "typeorm";
-import { CommandAction, CommandHandler } from "../commandHandler";
-import { TourRepository } from "../repositories/tour.repository";
+import { CommandAction, CommandHandler } from "../command-handler";
+import { TourRepository } from "../repositories/tour-repository";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
 import stc from "string-to-color";
 
 export const commandName = "status";
 
-export const description = "Obtient les résultats actuels pour le tour en cours";
+export const description =
+  "Obtient les résultats actuels pour le tour en cours";
 
 export const action: CommandAction = async function (
   this: CommandHandler,
@@ -18,7 +19,7 @@ export const action: CommandAction = async function (
 ) {
   const repo = getCustomRepository(TourRepository);
 
-  let currentPoll = await getCurrentPoll();
+  const currentPoll = await getCurrentPoll();
 
   if (!currentPoll) {
     throw new Error("Aucun sondage n'est en cours !");
@@ -35,7 +36,7 @@ export const action: CommandAction = async function (
     .getOne();
 
   if (!currentTour) {
-     throw new Error("Aucun tour n'a encore été publié !");
+    throw new Error("Aucun tour n'a encore été publié !");
   }
 
   if (currentTour.isFinal) {
@@ -46,30 +47,36 @@ export const action: CommandAction = async function (
     .createQueryBuilder("tour")
     .leftJoinAndSelect("tour.votePropositions", "votePropositions")
     .innerJoinAndSelect("votePropositions.votes", "votes")
-    .where("tour.id = :id",{id : currentTour.id})
+    .where("tour.id = :id", { id: currentTour.id })
     .groupBy("votes.clientId")
     .getRawMany();
 
-  let totalVotes = currentTour.votePropositions.reduce((p,c) => p + c.votes.length,0);
+  const totalVotes = currentTour.votePropositions.reduce(
+    (p, c) => p + c.votes.length,
+    0
+  );
   const adjustedVotes = totalVotes === 0 ? 1 : totalVotes;
 
-  const votes = currentTour.votePropositions
-    .sort((a,b) => {
-        const apercentage = 100 * (a.votes.length / adjustedVotes);
-        const bpercentage = 100 * (b.votes.length / adjustedVotes);
-        return bpercentage - apercentage;
-    });
+  const votes = currentTour.votePropositions.sort((a, b) => {
+    const apercentage = 100 * (a.votes.length / adjustedVotes);
+    const bpercentage = 100 * (b.votes.length / adjustedVotes);
+    return bpercentage - apercentage;
+  });
 
-   const embed = new MessageEmbed()
+  const embed = new MessageEmbed()
     .setColor(stc(currentPoll.name))
     .setTitle(currentPoll.name)
-    .addField("✉ Votes",`${totalVotes} vote(s)`,true)
-    .addField("🕺 Votants",`${numberOfVotants.length} votant(s)`,true)
-    .addField("📈 Top",`\`${votes[0] ? votes[0].proposition.name : "Aucun"}\` est en tête !`,true)
+    .addField("✉ Votes", `${totalVotes} vote(s)`, true)
+    .addField("🕺 Votants", `${numberOfVotants.length} votant(s)`, true)
+    .addField(
+      "📈 Top",
+      `\`${votes[0] ? votes[0].proposition.name : "Aucun"}\` est en tête !`,
+      true
+    )
     .attachFiles([
-      new MessageAttachment(await ChartService.generateChart(currentTour))
+      new MessageAttachment(await ChartService.generateChart(currentTour)),
     ])
     .setTimestamp();
 
-    await channel.send(embed);
+  await channel.send(embed);
 };

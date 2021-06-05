@@ -1,6 +1,10 @@
 import { publishMessageOnEveryServers } from "../utils/publish";
 import { BotConfig } from "../bot-config";
-import { AccessFunction, CommandAction, CommandHandler } from "../commandHandler";
+import {
+  AccessFunction,
+  CommandAction,
+  CommandHandler,
+} from "../command-handler";
 import { MessageEmbed, User as DiscordUser } from "discord.js";
 import { isAdmin } from "../utils/is-admin";
 
@@ -8,15 +12,15 @@ export const commandName = "publish";
 
 export const description = "Publie une annonce dans tous les serveurs";
 
-export const access : AccessFunction = (client: DiscordUser) => {
+export const access: AccessFunction = (client: DiscordUser) => {
   return isAdmin(client);
-}
+};
 
 export const action: CommandAction = async function (
   this: CommandHandler,
   args,
   channel,
-  caller,
+  caller
 ) {
   const messageContent = args.body;
 

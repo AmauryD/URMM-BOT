@@ -12,7 +12,7 @@ import {
   CommandAction,
   CommandHandler,
   CommandListen,
-} from "../commandHandler";
+} from "../command-handler";
 import { DiscordServer } from "../models/server";
 import { isAdmin } from "../utils/is-admin";
 

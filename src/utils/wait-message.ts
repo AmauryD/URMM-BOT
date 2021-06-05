@@ -4,9 +4,9 @@ import { Client, Collection, DMChannel, Message, MessageCollector, NewsChannel, 
 export async function waitMessage(
   channel: TextChannel | DMChannel | NewsChannel,
   waitFrom: User,
-  timeout: number = 60000
+  timeout = 60000
 ): Promise<Message> {
-  let filter = (m: Message) => m.author.id === waitFrom.id;
+  const filter = (m: Message) => m.author.id === waitFrom.id;
   let response : Collection<string,Message>;
 
   try {

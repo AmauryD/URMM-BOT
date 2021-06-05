@@ -24,7 +24,7 @@ export class ChartService {
   }
 
   static async generateChart(results: Tour) {
-    let totalVotes = results.votePropositions.reduce(
+    const totalVotes = results.votePropositions.reduce(
       (p, c) => p + c.votes.length,
       0
     );

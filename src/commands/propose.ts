@@ -1,5 +1,5 @@
 import { getRepository } from "typeorm";
-import { CommandAction, CommandHandler } from "../commandHandler";
+import { CommandAction, CommandHandler } from "../command-handler";
 import { Proposition, PropositionState } from "../models/proposition";
 import { isAdmin } from "../utils/is-admin";
 

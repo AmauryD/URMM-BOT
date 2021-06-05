@@ -3,7 +3,7 @@ import {
   CommandAction,
   CommandHandler,
   CommandListen,
-} from "../commandHandler";
+} from "../command-handler";
 import { randomImage } from "../utils/random-image";
 
 export const commandName = "image";

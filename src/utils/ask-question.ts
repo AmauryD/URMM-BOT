@@ -22,7 +22,7 @@ export async function askQuestion(
   msg: string | MessageEmbed,
   channel: TextChannel | DMChannel | NewsChannel,
   from: User,
-  timeout: number = 60000
+  timeout = 60000
 ) {
   await channel.send(msg);
   const response = await waitMessage(channel, from, timeout);
@@ -41,7 +41,7 @@ export async function askConfirmation(
   msg: string | MessageEmbed,
   channel: TextChannel | DMChannel | NewsChannel,
   from: User,
-  timeout: number = 60000
+  timeout = 60000
 ) {
   const validationEmoji = "✅";
   const denyEmoji = "❌";

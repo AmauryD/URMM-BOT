@@ -1,6 +1,6 @@
 import { BotConfig } from "./bot-config";
-import { CommandHandler } from "./commandHandler";
-import { DiscordClient } from "./discordclient";
+import { CommandHandler } from "./command-handler";
+import { DiscordClient } from "./discord-client";
 import "reflect-metadata";
 import { DatabaseConnection } from "./db-connection";
 import { getCustomRepository, getRepository } from "typeorm";
@@ -8,13 +8,13 @@ import { DiscordServer, DiscordServerType } from "./models/server";
 import { ChartService } from "./utils/chart-service";
 import { MessageEmbed, TextChannel } from "discord.js";
 import { PexelClient } from "./pexel-client";
-import { CronJobManager } from "./cronjob";
-import { TourRepository } from "./repositories/tour.repository";
+import { CronJobManager } from "./cronjob-manager";
+import { TourRepository } from "./repositories/tour-repository";
 import getCurrentPoll from "./utils/get-current-poll";
 import { listenToTourReactions } from "./utils/listen-tour-message";
 import { TourMessage } from "./models/tour-message";
 import { randomImage } from "./utils/random-image";
-import { DiscordServerRepository } from "./repositories/server.repository";
+import { DiscordServerRepository } from "./repositories/server-repository";
 import { breakfast, dinner, gouter, midday } from "./static/food-keywords";
 
 async function init() {
@@ -35,12 +35,12 @@ async function init() {
   PexelClient.init();
 
   const guildRepo = getCustomRepository(DiscordServerRepository);
-  const foodServers = await guildRepo
-    .activeServersBuilder()
-    .andWhere("server.broadcastFoodChannelId IS NOT NULL")
-    .getMany();
 
   CronJobManager.register("food", "0 9 * * *", async () => {
+    const foodServers = await guildRepo
+      .activeServersBuilder()
+      .andWhere("server.broadcastFoodChannelId IS NOT NULL")
+      .getMany();
     const photos = await randomImage(breakfast, 50);
 
     if (!photos.length) return;
@@ -63,6 +63,10 @@ async function init() {
   });
 
   CronJobManager.register("food", "0 12 * * *", async () => {
+    const foodServers = await guildRepo
+      .activeServersBuilder()
+      .andWhere("server.broadcastFoodChannelId IS NOT NULL")
+      .getMany();
     const photos = await randomImage(midday, 50);
 
     if (!photos.length) return;
@@ -82,6 +86,10 @@ async function init() {
   });
 
   CronJobManager.register("food", "0 16 * * *", async () => {
+    const foodServers = await guildRepo
+      .activeServersBuilder()
+      .andWhere("server.broadcastFoodChannelId IS NOT NULL")
+      .getMany();
     const photos = await randomImage(gouter, 50);
 
     if (!photos.length) return;
@@ -101,6 +109,10 @@ async function init() {
   });
 
   CronJobManager.register("food", "0 18 * * *", async () => {
+    const foodServers = await guildRepo
+      .activeServersBuilder()
+      .andWhere("server.broadcastFoodChannelId IS NOT NULL")
+      .getMany();
     const photos = await randomImage(dinner, 50);
 
     if (!photos.length) return;

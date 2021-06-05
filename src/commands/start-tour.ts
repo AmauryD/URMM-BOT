@@ -9,13 +9,13 @@ import {
   AccessFunction,
   CommandAction,
   CommandHandler,
-} from "../commandHandler";
+} from "../command-handler";
 import { Poll, PollStatus } from "../models/poll";
 import { Proposition, PropositionState } from "../models/proposition";
 import { TourType } from "../models/tour";
 import { DiscordServer as DiscordServer } from "../models/server";
 import { VoteProposition } from "../models/vote-proposition";
-import { TourRepository } from "../repositories/tour.repository";
+import { TourRepository } from "../repositories/tour-repository";
 import { askConfirmation, askQuestion } from "../utils/ask-question";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
@@ -23,10 +23,10 @@ import stc from "string-to-color";
 import { isAdmin } from "../utils/is-admin";
 import { publishMessageOnEveryServers } from "../utils/publish";
 import { TourMessage } from "../models/tour-message";
-import { DiscordClient } from "../discordclient";
+import { DiscordClient } from "../discord-client";
 import { MessageArgumentReader } from "discord-command-parser";
 import { listenToTourReactions } from "../utils/listen-tour-message";
-import { DiscordServerRepository } from "../repositories/server.repository";
+import { DiscordServerRepository } from "../repositories/server-repository";
 
 export const commandName = "start-tour";
 

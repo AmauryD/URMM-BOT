@@ -1,4 +1,4 @@
-import { DiscordClient } from "./discordclient";
+import { DiscordClient } from "./discord-client";
 import { promises as fs } from "fs";
 import {
   GuildMember,

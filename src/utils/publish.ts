@@ -1,8 +1,8 @@
 import { MessageEmbed, TextChannel } from "discord.js";
 import { getCustomRepository, getRepository } from "typeorm";
-import { DiscordClient } from "../discordclient";
+import { DiscordClient } from "../discord-client";
 import { DiscordServer, DiscordServerType } from "../models/server";
-import { DiscordServerRepository } from "../repositories/server.repository";
+import { DiscordServerRepository } from "../repositories/server-repository";
 
 export const publishMessageOnEveryServers = async (
   messageContent: string | MessageEmbed

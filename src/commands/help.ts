@@ -1,6 +1,6 @@
 import { MessageEmbed } from "discord.js";
 import { BotConfig } from "../bot-config";
-import { CommandAction, CommandHandler } from "../commandHandler";
+import { CommandAction, CommandHandler } from "../command-handler";
 
 export const commandName = "help";
 
