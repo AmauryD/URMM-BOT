@@ -5,6 +5,7 @@ import { TourRepository } from "../repositories/tour-repository";
 import { ChartService } from "../utils/chart-service";
 import getCurrentPoll from "../utils/get-current-poll";
 import stc from "string-to-color";
+import { isAdmin } from "../utils/is-admin";
 
 export const commandName = "status";
 
@@ -39,7 +40,7 @@ export const action: CommandAction = async function (
     throw new Error("Aucun tour n'a encore été publié !");
   }
 
-  if (currentTour.isFinal) {
+  if (currentTour.isFinal && !(await isAdmin(user))) {
     throw new Error("Vous ne pouvez voir les résultats lors du tour final !");
   }
 
