@@ -170,7 +170,7 @@ async function init() {
         )
         .addField(
           "📝",
-          `Faites \`$help\` pour voir les différentes commandes.\nSi vous voulez changer le channel d'annonces faites \`$channel\` dans le channel de votre choix.`
+          `Faites \`$help\` en message privé au bot pour voir les différentes commandes.\nSi vous voulez changer le channel d'annonces faites \`$channel\` dans le channel de votre choix.`
         );
 
       await channel.send(embed);
