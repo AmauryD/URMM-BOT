@@ -164,15 +164,20 @@ export const action: CommandAction = async function (
   const propositionsArray =
     lastTour?.votePropositions.map((e) => e.proposition) ?? propositions;
 
+  const propEmbed = new MessageEmbed()
+    .setColor(stc(currentPoll.name))
+    .setTitle("Choisis les propositions !")
+    .setDescription("Saisis les numéros correspondants, séparés d'une virgule !")
+    .addField("Propositions",propositionsArray.map((e, i) => `🔹 ${i} : ${e.name}`).join("\n"));
+
   const propositionString = await askQuestion(
-    `Quelles propositions doivent être dans ce tour ? (ex: 1,2,3)\n${propositionsArray
-      .map((e, i) => `🔹 ${i} : ${e.name}`)
-      .join("\n")}`,
+    propEmbed,
     channel,
     caller
-  );
+  ,300 * 1000);
 
   const indexes = propositionsArray.map((e, i) => i);
+  
   const chosen = propositionString.content
     .split(",")
     .map((e) => e.trim())
@@ -204,7 +209,7 @@ export const action: CommandAction = async function (
     `Petit message d'amour pour le tour ! (vous pouvez également joindre une image à ce message qui sera affichée en tant que bannière)`,
     channel,
     caller,
-    120000
+    240000
   );
 
   const embed = new MessageEmbed()
