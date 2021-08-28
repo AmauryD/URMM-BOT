@@ -164,21 +164,20 @@ export const action: CommandAction = async function (
   const propositionsArray =
     lastTour?.votePropositions.map((e) => e.proposition) ?? propositions;
 
-  const propEmbed = new MessageEmbed()
-    .setColor(stc(currentPoll.name))
-    .setTitle("Choisis les propositions !")
-    .setDescription("Saisis les numéros correspondants, séparés d'une virgule !")
-    .addField("Propositions",propositionsArray.map((e, i) => `🔹 ${i} : ${e.name}`).join("\n"));
+  const propositionString =
+    `Quelles propositions doivent être dans ce tour ? (ex: 1,2,3)\n${propositionsArray
+      .map((e, i) => `🔹 ${i} : ${e.name}`)
+      .join("\n")}`;
 
-  const propositionString = await askQuestion(
-    propEmbed,
+  const propositionMessage = await askQuestion(
+    propositionString,
     channel,
     caller
   ,300 * 1000);
 
   const indexes = propositionsArray.map((e, i) => i);
   
-  const chosen = propositionString.content
+  const chosen = propositionMessage.content
     .split(",")
     .map((e) => e.trim())
     .filter((e) => e !== "");
