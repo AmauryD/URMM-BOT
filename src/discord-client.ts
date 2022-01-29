@@ -1,4 +1,4 @@
-import Discord, { Client } from 'discord.js';
+import Discord, { Client, Intents } from 'discord.js';
 
 export class DiscordClient {
     private static _client : Discord.Client;
@@ -21,7 +21,15 @@ export class DiscordClient {
             throw new Error("Client already initialized");
         }
 
-        const client = DiscordClient._client = new Client();
+        const intents = new Intents();
+        intents.add(Intents.FLAGS.GUILDS);
+        intents.add(Intents.FLAGS.GUILD_MESSAGES);
+        intents.add(Intents.FLAGS.DIRECT_MESSAGES);
+
+        const client = DiscordClient._client = new Client({
+            intents,
+            partials: ['MESSAGE', 'CHANNEL']
+        });
 
         await client.login(token);
 

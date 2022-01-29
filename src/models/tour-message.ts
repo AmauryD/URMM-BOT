@@ -1,12 +1,9 @@
 import {
   Entity,
-  OneToMany,
   ManyToOne,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
   Column,
 } from "typeorm";
-import { BaseModel } from "./base.model";
+import { BaseModel } from "./base-model";
 import { DiscordServer } from "./server";
 import { Tour } from "./tour";
 

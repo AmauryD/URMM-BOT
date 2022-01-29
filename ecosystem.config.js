@@ -1,3 +1,5 @@
+/* eslint-disable filenames/match-regex */
+/* eslint-disable no-undef */
 module.exports = {
   apps : [{
     name: "URMM-BOT",

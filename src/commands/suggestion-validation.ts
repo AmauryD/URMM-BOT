@@ -1,4 +1,4 @@
-import { User as DiscordUser, User } from "discord.js";
+import { User as DiscordUser } from "discord.js";
 import { DatabaseConnection } from "../db-connection";
 import { Proposition, PropositionState } from "../models/proposition";
 import {
@@ -24,7 +24,8 @@ export const action: CommandAction = async function (
   caller
 ) {
   const propositionRepo =
-    DatabaseConnection.Connection?.getRepository(Proposition)!;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    DatabaseConnection.Connection!.getRepository(Proposition);
 
   const propositions = await propositionRepo
     .createQueryBuilder("proposition")

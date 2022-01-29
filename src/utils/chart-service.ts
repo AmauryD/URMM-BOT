@@ -2,7 +2,6 @@ import { readFile } from "fs/promises";
 import { Tour } from "../models/tour";
 import puppeteer, { Browser } from "puppeteer";
 import stc from "string-to-color";
-import { BotConfig } from "../bot-config";
 
 export class ChartService {
   private static _browser: Browser | null = null;

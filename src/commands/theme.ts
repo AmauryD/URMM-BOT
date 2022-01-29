@@ -1,4 +1,4 @@
-import { MessageEmbed } from "discord.js";
+import { ColorResolvable, MessageEmbed } from "discord.js";
 import stc from "string-to-color";
 import { getRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../command-handler";
@@ -27,11 +27,11 @@ export const action: CommandAction = async function (
   }
 
   const embed = new MessageEmbed()
-    .setColor(stc(lastPoll.name))
+    .setColor(stc(lastPoll.name) as ColorResolvable)
     .setTitle(lastPoll.name)
     .setDescription(
       `Le thème de la semaine est : **${lastPoll.winner!.name}** 😎`
     );
 
-  await channel.send(embed);
+  await channel.send({embeds: [embed]});
 };

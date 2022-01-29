@@ -4,7 +4,7 @@ import { DiscordClient } from "./discord-client";
 import "reflect-metadata";
 import { DatabaseConnection } from "./db-connection";
 import { getCustomRepository, getRepository } from "typeorm";
-import { DiscordServer, DiscordServerType } from "./models/server";
+import { DiscordServer } from "./models/server";
 import { ChartService } from "./utils/chart-service";
 import { MessageEmbed, TextChannel } from "discord.js";
 import { PexelClient } from "./pexel-client";
@@ -26,8 +26,8 @@ async function init() {
   ]);
   const botUser = client.user!;
 
-  await botUser.setActivity("$help en privé pour les commandes");
-  await botUser.setStatus("online");
+  botUser.setActivity("$help en privé pour les commandes");
+  botUser.setStatus("online");
 
   const commandHandler = CommandHandler.get();
   await commandHandler.init();
@@ -51,9 +51,9 @@ async function init() {
           server.broadcastFoodChannelId!
         )) as TextChannel;
         await URMMManger.send(
-          "Le petit déjeuner est le repas le plus important de la journée 😋",
           {
             files: [photos[0].src.large],
+            content: "Le petit déjeuner est le repas le plus important de la journée 😋",
           }
         );
       } catch (e) {
@@ -76,8 +76,9 @@ async function init() {
         const URMMManger = (await client.channels.fetch(
           server.broadcastFoodChannelId!
         )) as TextChannel;
-        await URMMManger.send("C'est l'heure de manger 😋", {
+        await URMMManger.send({
           files: [photos[0].src.large],
+          content: "C'est l'heure de manger 😋"
         });
       } catch (e) {
         console.log(e);
@@ -99,8 +100,9 @@ async function init() {
         const URMMManger = (await client.channels.fetch(
           server.broadcastFoodChannelId!
         )) as TextChannel;
-        await URMMManger.send("C'est l'heure du goûter 😋", {
+        await URMMManger.send({
           files: [photos[0].src.large],
+          content : "C'est l'heure du goûter 😋"
         });
       } catch (e) {
         console.log(e);
@@ -123,8 +125,7 @@ async function init() {
           server.broadcastFoodChannelId!
         )) as TextChannel;
         await URMMManger.send(
-          "C'est l'heure de profiter d'un bon repas après une dure journée 😋",
-          { files: [photos[0].src.large] }
+          { files: [photos[0].src.large], content: "C'est l'heure de profiter d'un bon repas après une dure journée 😋" }
         );
       } catch (e) {
         console.log(e);
@@ -132,7 +133,7 @@ async function init() {
     }
   });
 
-  client.on("message", (message) => {
+  client.on("messageCreate", (message) => {
     commandHandler.handleCommand(message);
   });
 
@@ -151,7 +152,9 @@ async function init() {
     if (server) {
       server.isActive = true;
     } else {
-      const channel = await guild.channels.create("urmm-bot", { type: "text" });
+      const channel = await guild.channels.create("urmm-bot", {
+        type: 'GUILD_TEXT'
+      });
 
       server = serverRepo.create({
         guildId: guild.id,
@@ -173,7 +176,9 @@ async function init() {
           `Faites \`$help\` en message privé au bot pour voir les différentes commandes.\nSi vous voulez changer le channel d'annonces faites \`$channel\` dans le channel de votre choix.`
         );
 
-      await channel.send(embed);
+      await channel.send({
+        embeds: [embed]
+      });
     }
 
     await serverRepo.save(server);

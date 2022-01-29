@@ -1,13 +1,14 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "filenames"],
+  "plugins": ["@typescript-eslint", "filenames","unused-imports"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
-    "filenames/match-regex": [2, "^([a-z][a-z0-9]*)(-[a-z0-9]+)*$", true]
+    "filenames/match-regex": [2, "^([a-z][a-z0-9]*)(-[a-z0-9]+)*$", true],
+    "unused-imports/no-unused-imports": "error"
   }
 }

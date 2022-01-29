@@ -51,5 +51,5 @@ export const action: CommandAction = async function (
         .join("\n")
     );
 
-  await channel.send(embed);
+  await channel.send({embeds: [embed]});
 };
