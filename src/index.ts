@@ -26,8 +26,8 @@ async function init() {
   ]);
   const botUser = client.user!;
 
-  await botUser.setActivity("$help en privé pour les commandes");
-  await botUser.setStatus("online");
+  botUser.setActivity("$help en privé pour les commandes");
+  botUser.setStatus("online");
 
   const commandHandler = CommandHandler.get();
   await commandHandler.init();
@@ -133,7 +133,7 @@ async function init() {
     }
   });
 
-  client.on("message", (message) => {
+  client.on("messageCreate", (message) => {
     commandHandler.handleCommand(message);
   });
 
