@@ -16,12 +16,12 @@ export const description =
 
 export const listen: CommandListen = "@guilds";
 
-export const access: AccessFunction = (client: User, channel) => {
+export const access: AccessFunction = async (client: User, channel) => {
   if (channel instanceof DMChannel) {
     return false;
   }
   return (
-    channel?.guild.member(client)?.hasPermission("ADMINISTRATOR") ??
+    (await channel?.guild.members.fetch(client))?.permissions.has("ADMINISTRATOR") ??
     isAdmin(client) ??
     false
   );
@@ -55,5 +55,5 @@ export const action: CommandAction = async function (
     );
 
   await repository.save(guild);
-  await textChannel.send(embed);
+  await textChannel.send({ embeds: [embed]});
 };

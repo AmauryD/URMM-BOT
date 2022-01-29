@@ -1,8 +1,5 @@
 import {
-  Channel,
   DMChannel,
-  GuildMember,
-  Message,
   MessageEmbed,
   NewsChannel,
   TextChannel,
@@ -24,7 +21,7 @@ export async function askQuestion(
   from: User,
   timeout = 60000
 ) {
-  await channel.send(msg);
+  await channel.send(msg instanceof MessageEmbed ? { embeds: [msg] } : { content : msg });
   const response = await waitMessage(channel, from, timeout);
   return response;
 }
@@ -50,14 +47,15 @@ export async function askConfirmation(
     return ["✅", "❌"].includes(reaction.emoji.name) && user.id === from.id;
   };
 
-  const confirmMessage = await channel.send(msg);
+  const confirmMessage = await channel.send(msg instanceof MessageEmbed ? { embeds: [msg] } : { content : msg });
 
   await Promise.all([
     confirmMessage.react(validationEmoji),
     confirmMessage.react(denyEmoji),
   ]);
 
-  const collected = await confirmMessage.awaitReactions(filter, {
+  const collected = await confirmMessage.awaitReactions({
+    filter,
     max: 1,
     time: timeout,
     errors: ["time"],

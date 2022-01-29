@@ -1,4 +1,5 @@
 import {
+  ColorResolvable,
   MessageAttachment,
   MessageEmbed,
   User as DiscordUser,
@@ -63,7 +64,7 @@ export const action: CommandAction = async function (
   await pollRepo.save(currentPoll);
 
   const embed = new MessageEmbed()
-    .setColor(stc(winner.proposition.name))
+    .setColor(stc(winner.proposition.name) as ColorResolvable)
     .setTitle(currentPoll.name)
     .setDescription(
       `@everyone 🥳 **Le thème gagnant de la semaine est ${winner.proposition.name}** 🥳`
@@ -76,11 +77,8 @@ export const action: CommandAction = async function (
           : "Un Inconnu"
       } !`
     )
-    .addField("Petit message", customMessage)
-    .attachFiles([
-      new MessageAttachment(await ChartService.generateChart(lastTour)),
-    ])
+    .addField("Petit message", customMessage.content)
     .setTimestamp();
 
-  await publishMessageOnEveryServers(embed);
+  await publishMessageOnEveryServers(embed, [new MessageAttachment(await ChartService.generateChart(lastTour))]);
 };

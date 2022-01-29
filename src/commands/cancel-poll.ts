@@ -9,7 +9,6 @@ import { PollStatus } from "../models/poll";
 import { PollRepository } from "../repositories/poll-repository";
 import { TourRepository } from "../repositories/tour-repository";
 import getCurrentPoll from "../utils/get-current-poll";
-import stc from "string-to-color";
 import { isAdmin } from "../utils/is-admin";
 import { askQuestion } from "../utils/ask-question";
 

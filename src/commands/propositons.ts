@@ -1,7 +1,6 @@
 import { MessageEmbed } from "discord.js";
 import { getRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../command-handler";
-import { DatabaseConnection } from "../db-connection";
 import { Proposition, PropositionState } from "../models/proposition";
 
 export const commandName = "propositions";
@@ -28,5 +27,5 @@ export const action: CommandAction = async function (
     .setTitle("📋 Sujets proposés")
     .setDescription(propositions.map((p) => `🔹 ${p.name}`).join("\n"));
 
-  await channel.send(embed);
+  await channel.send({embeds : [embed]});
 };

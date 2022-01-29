@@ -2,12 +2,10 @@ import {
   Entity,
   OneToMany,
   OneToOne,
-  PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
   Index,
 } from "typeorm";
-import { BaseModel } from "./base.model";
+import { BaseModel } from "./base-model";
 import { Poll } from "./poll";
 import { VoteProposition } from "./vote-proposition";
 

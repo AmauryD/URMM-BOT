@@ -1,14 +1,11 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   OneToMany,
   OneToOne,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
 } from "typeorm";
-import { BaseModel } from "./base.model";
+import { BaseModel } from "./base-model";
 import { Proposition } from "./proposition";
 import { Tour } from "./tour";
 

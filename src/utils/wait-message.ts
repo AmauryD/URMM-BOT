@@ -1,4 +1,4 @@
-import { Client, Collection, DMChannel, Message, MessageCollector, NewsChannel, TextChannel, User } from "discord.js";
+import { Collection, DMChannel, Message, NewsChannel, TextChannel, User } from "discord.js";
 
 
 export async function waitMessage(
@@ -10,7 +10,8 @@ export async function waitMessage(
   let response : Collection<string,Message>;
 
   try {
-    response = await channel.awaitMessages(filter, {
+    response = await channel.awaitMessages({
+        filter,
         max: 1,
         time: timeout,
         errors: ['time']

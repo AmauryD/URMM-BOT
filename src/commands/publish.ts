@@ -1,5 +1,4 @@
 import { publishMessageOnEveryServers } from "../utils/publish";
-import { BotConfig } from "../bot-config";
 import {
   AccessFunction,
   CommandAction,

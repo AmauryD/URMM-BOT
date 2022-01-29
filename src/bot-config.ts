@@ -1,4 +1,4 @@
-import dotenv, { parse } from "dotenv";
+import dotenv from "dotenv";
 
 export interface BotConfigObject {
   token: string;
@@ -26,7 +26,7 @@ export class BotConfig {
   }
 
   public static async init(): Promise<BotConfigObject> {
-    let { parsed, error } = dotenv.config({ path: "config.env" });
+    let { parsed } = dotenv.config({ path: "config.env" });
     const config: BotConfigObject = {} as any;
 
     if (parsed === undefined) {

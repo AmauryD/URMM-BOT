@@ -4,7 +4,6 @@ import {
   Column,
   Index,
   CreateDateColumn,
-  ManyToOne,
   OneToMany,
 } from "typeorm";
 import { TourMessage } from "./tour-message";

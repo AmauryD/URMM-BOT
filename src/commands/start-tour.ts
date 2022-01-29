@@ -1,8 +1,8 @@
 import {
+  ColorResolvable,
   MessageAttachment,
   MessageEmbed,
   User as DiscordUser,
-  User,
 } from "discord.js";
 import { getCustomRepository, getRepository } from "typeorm";
 import {
@@ -13,7 +13,6 @@ import {
 import { Poll, PollStatus } from "../models/poll";
 import { Proposition, PropositionState } from "../models/proposition";
 import { TourType } from "../models/tour";
-import { DiscordServer as DiscordServer } from "../models/server";
 import { VoteProposition } from "../models/vote-proposition";
 import { TourRepository } from "../repositories/tour-repository";
 import { askConfirmation, askQuestion } from "../utils/ask-question";
@@ -23,10 +22,7 @@ import stc from "string-to-color";
 import { isAdmin } from "../utils/is-admin";
 import { publishMessageOnEveryServers } from "../utils/publish";
 import { TourMessage } from "../models/tour-message";
-import { DiscordClient } from "../discord-client";
-import { MessageArgumentReader } from "discord-command-parser";
 import { listenToTourReactions } from "../utils/listen-tour-message";
-import { DiscordServerRepository } from "../repositories/server-repository";
 
 export const commandName = "start-tour";
 
@@ -105,21 +101,18 @@ export const action: CommandAction = async function (
     }
 
     const embed = new MessageEmbed()
-      .setColor(stc(currentPoll.name))
+      .setColor(stc(currentPoll.name) as ColorResolvable)
       .setTitle(currentPoll.name)
       .setDescription(`💥 Voici les résultats du tour précédent ! 💥`)
       .addField(
         `🕴 ${lastTour.votePropositions.length} Votants`,
         `Merci à vous chers votants, que la force vous guide !`
       )
-      .attachFiles([
-        new MessageAttachment(await ChartService.generateChart(lastTour)),
-      ])
       .setTimestamp();
 
     await channel.send("📝 Résultats publiés !");
 
-    await publishMessageOnEveryServers(embed);
+    await publishMessageOnEveryServers(embed, [new MessageAttachment(await ChartService.generateChart(lastTour))]);
   }
 
   const propositions = await propoRepo
@@ -212,7 +205,7 @@ export const action: CommandAction = async function (
   );
 
   const embed = new MessageEmbed()
-    .setColor(stc(currentPoll.name))
+    .setColor(stc(currentPoll.name) as ColorResolvable)
     .setTitle(currentPoll.name)
     .setDescription(`🥳 **Nouveau tour @everyone !** 🥳`)
     .addField(
@@ -223,9 +216,6 @@ export const action: CommandAction = async function (
       "Réactions",
       `Cliquez sur '🗳' pour voter !\nCliquez sur '📊' pour voir les résultats !\nCliquez sur '❓' pour afficher les commandes !\n`
     )
-    .attachFiles([
-      new MessageAttachment(await ChartService.generateChart(newTour)),
-    ])
     .setTimestamp();
 
   if (loveMessage.content.trim()) {
@@ -236,7 +226,7 @@ export const action: CommandAction = async function (
     embed.setThumbnail(loveMessage.attachments.first()!.url);
   }
 
-  const announcementArray = await publishMessageOnEveryServers(embed);
+  const announcementArray = await publishMessageOnEveryServers(embed, [new MessageAttachment(await ChartService.generateChart(newTour))]);
 
   for (const announcement of announcementArray) {
     const tourMessage = new TourMessage();

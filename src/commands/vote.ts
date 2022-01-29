@@ -1,13 +1,11 @@
 import {
-  Message,
+  ColorResolvable,
   MessageEmbed,
   MessageReaction,
-  User as DiscordUser,
   User,
 } from "discord.js";
 import stc from "string-to-color";
-import { Any, getCustomRepository, getRepository } from "typeorm";
-import { updateAsExpression } from "typescript";
+import { getCustomRepository, getRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../command-handler";
 import { TourType } from "../models/tour";
 import { Vote } from "../models/vote";
@@ -63,7 +61,7 @@ export const action: CommandAction = async function (
   }
 
   const embed = new MessageEmbed()
-    .setColor(stc(currentPoll.name))
+    .setColor(stc(currentPoll.name) as ColorResolvable)
     .setTitle("💬 Votez !");
   if (lastTour.type === TourType.Multiple)
     embed.setDescription(
@@ -74,7 +72,7 @@ export const action: CommandAction = async function (
       "Réagissez avec 📜 sur la suggestion de votre choix (vous ne pouvez en choisir qu'une)"
     );
 
-  await channel.send(embed);
+  await channel.send({embeds : [embed]});
 
   const propositions = [];
   const votePropositionsIDs: { [name: string]: VoteProposition } = {};
@@ -86,19 +84,18 @@ export const action: CommandAction = async function (
   }
 
   const confirmEmbed = new MessageEmbed()
-    .setColor(stc(currentPoll.name))
+    .setColor(stc(currentPoll.name) as ColorResolvable)
     .setTitle("Urne 🗳")
     .setDescription(
       "Réagissez sur ce message avec ✅ une fois que vous avez fait votre choix :)"
     );
 
-  const confirm = await channel.send(confirmEmbed);
+  const confirm = await channel.send({ embeds: [confirmEmbed]});
   await confirm.react("✅");
   //10 Minutes should be enough to choose and vote, i hope :/
   //Also, not bothering checking if user is the one who did $vote because he should be the only one able to react as it is the only other one in the channel
   await confirm.awaitReactions(
-    (react: MessageReaction, user: User) => react.emoji.name === "✅",
-    { max: 1, time: 600000, errors: ["time"] }
+    { max: 1, time: 600000, errors: ["time"], filter: (react: MessageReaction, user: User) => react.emoji.name === "✅" }
   );
   const chosen = [];
   const votes = [];
@@ -122,11 +119,11 @@ export const action: CommandAction = async function (
   await voteRepo.save(votes);
 
   const voteAck = new MessageEmbed()
-    .setColor(stc(currentPoll.name))
+    .setColor( stc(currentPoll.name) as ColorResolvable )
     .setTitle(`✅ Votre vote pour [${chosen.join()}] a été comptabilisé !`)
     .setDescription(
       "Utilisez la commande `$status` afin de voir les différents résultats."
     );
 
-  await channel.send(voteAck);
+  await channel.send({ embeds : [voteAck]});
 };

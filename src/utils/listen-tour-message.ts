@@ -14,8 +14,7 @@ export async function listenToTourReactions(announcement: Message) {
   ]);
 
   const collector = announcement.createReactionCollector(
-    (react, user: User) => user.id !== DiscordClient.instance.user?.id,
-    { max: 1000 }
+    { max: 1000, filter : (react, user: User) => user.id !== DiscordClient.instance.user?.id }
   );
   collector.on("collect", async (reaction, user) => {
     reaction.users.remove(user);

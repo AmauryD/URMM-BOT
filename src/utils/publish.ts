@@ -1,11 +1,11 @@
-import { MessageEmbed, TextChannel } from "discord.js";
-import { getCustomRepository, getRepository } from "typeorm";
+import { MessageAttachment, MessageEmbed, TextChannel } from "discord.js";
+import { getCustomRepository } from "typeorm";
 import { DiscordClient } from "../discord-client";
-import { DiscordServer, DiscordServerType } from "../models/server";
 import { DiscordServerRepository } from "../repositories/server-repository";
 
 export const publishMessageOnEveryServers = async (
-  messageContent: string | MessageEmbed
+  messageContent: string | MessageEmbed,
+  files?: MessageAttachment[]
 ) => {
   const announcementArray = [];
   const repository = getCustomRepository(DiscordServerRepository);
@@ -16,7 +16,7 @@ export const publishMessageOnEveryServers = async (
       server.broadcastChannelId
     )) as TextChannel;
 
-    const annoucement = await channel.send(messageContent);
+    const annoucement = await channel.send(messageContent instanceof MessageEmbed ? { embeds: [messageContent] , files } : { content : messageContent, files });
 
     announcementArray.push({ message: annoucement, server });
   }

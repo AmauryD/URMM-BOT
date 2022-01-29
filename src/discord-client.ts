@@ -21,7 +21,9 @@ export class DiscordClient {
             throw new Error("Client already initialized");
         }
 
-        const client = DiscordClient._client = new Client();
+        const client = DiscordClient._client = new Client({
+            intents: 1644103728208
+        });
 
         await client.login(token);
 

@@ -1,4 +1,4 @@
-import { MessageAttachment, MessageEmbed } from "discord.js";
+import { ColorResolvable, MessageAttachment, MessageEmbed } from "discord.js";
 import { getCustomRepository } from "typeorm";
 import { CommandAction, CommandHandler } from "../command-handler";
 import { TourRepository } from "../repositories/tour-repository";
@@ -65,7 +65,7 @@ export const action: CommandAction = async function (
   });
 
   const embed = new MessageEmbed()
-    .setColor(stc(currentPoll.name))
+    .setColor(stc(currentPoll.name) as ColorResolvable)
     .setTitle(currentPoll.name)
     .addField("✉ Votes", `${totalVotes} vote(s)`, true)
     .addField("🕺 Votants", `${numberOfVotants.length} votant(s)`, true)
@@ -74,10 +74,7 @@ export const action: CommandAction = async function (
       `\`${votes[0] ? votes[0].proposition.name : "Aucun"}\` est en tête !`,
       true
     )
-    .attachFiles([
-      new MessageAttachment(await ChartService.generateChart(currentTour)),
-    ])
     .setTimestamp();
 
-  await channel.send(embed);
+  await channel.send({embeds : [embed], files: [new MessageAttachment(await ChartService.generateChart(currentTour))]});
 };

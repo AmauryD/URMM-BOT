@@ -1,8 +1,6 @@
 import {
   DMChannel,
-  Message,
   MessageEmbed,
-  NewsChannel,
   TextChannel,
   User,
 } from "discord.js";
@@ -22,12 +20,12 @@ export const description = "Change location of food channel for current guild";
 
 export const listen: CommandListen = "@guilds";
 
-export const access: AccessFunction = (client: User, channel) => {
+export const access: AccessFunction = async (client: User, channel) => {
   if (channel instanceof DMChannel) {
     return false;
   }
   return (
-    channel?.guild.member(client)?.hasPermission("ADMINISTRATOR") ??
+    (await channel?.guild.members.fetch(client))?.permissions.has("ADMINISTRATOR") ??
     isAdmin(client) ??
     false
   );

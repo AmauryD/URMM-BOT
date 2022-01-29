@@ -1,11 +1,7 @@
-import { DiscordClient } from "./discord-client";
 import { promises as fs } from "fs";
 import {
-  GuildMember,
   Message,
   User,
-  ClientUser,
-  Channel,
   TextChannel,
   DMChannel,
   NewsChannel,
@@ -104,10 +100,10 @@ export class CommandHandler {
         }`
       );
 
-      if (listen === "@dm" && channel.type === "dm") {
+      if (listen === "@dm" && channel.type === "DM") {
         await command.action.call(this, args, channel, caller, originalMessage);
         return true;
-      } else if (listen === "@guilds" && channel.type === "text") {
+      } else if (listen === "@guilds" && channel.type === "GUILD_TEXT") {
         await command.action.call(this, args, channel, caller, originalMessage);
         return true;
       } else if (listen === channel.id) {
@@ -117,7 +113,7 @@ export class CommandHandler {
         return false;
       }
     } catch (e) {
-      const msg = e ? e.message : "Error";
+      const msg = e ? (e as Error).message : "Error";
       console.log(e);
       await channel.send(`❌ ${msg}`);
     }
